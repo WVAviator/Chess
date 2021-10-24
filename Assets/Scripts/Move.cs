@@ -21,8 +21,6 @@ namespace Chess
 
         bool _isExecuted;
 
-        static bool _checkForCheck;
-
         public Move(ChessPiece piece, Vector2Int newPosition)
         {
             _newPosition = newPosition;
