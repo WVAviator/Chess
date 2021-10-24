@@ -77,6 +77,18 @@ public class RookTests
             bool actual = rook.IsLegalMove(pawnPosition);
             Assert.AreEqual(false, actual);
         }
+
+        [Test]
+        public void PuttingKingInCheckIsIllegalMove()
+        {
+            King king = new King(ChessPieceColor.White, new Vector2Int(5, 0));
+            Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(5, 1));
+            Queen opponentQueen = new Queen(ChessPieceColor.Black, new Vector2Int(5, 5));
+            ChessBoard board = new ChessBoard(king, rook, opponentQueen);
+
+            Move move = new Move(rook, new Vector2Int(3, 1));
+            Assert.IsFalse(move.IsLegal());
+        }
     }
     class GetPossibleMoves
     {
@@ -86,6 +98,7 @@ public class RookTests
             Vector2Int position = new Vector2Int(1, 1);
 
             Rook piece = new Rook(ChessPieceColor.Black, position);
+            ChessBoard board = new ChessBoard(piece);
 
             List<Move> moves = piece.GetPossibleMoves();
             

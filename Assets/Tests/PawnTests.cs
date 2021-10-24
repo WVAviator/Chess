@@ -148,6 +148,8 @@ public class PawnTests
         {
             Vector2Int pawnPosition = new Vector2Int(2, 1);
             Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
+            
+            ChessBoard board = new ChessBoard(pawn);
 
             List<Move> possibleMoves = pawn.GetPossibleMoves();
 

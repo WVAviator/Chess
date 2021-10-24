@@ -49,6 +49,7 @@ public class KingTests
             Vector2Int kingPosition = new Vector2Int(3, 3);
 
             King king = new King(ChessPieceColor.Black, kingPosition);
+            ChessBoard board = new ChessBoard(king);
 
             List<Move> moves = king.GetPossibleMoves();
             

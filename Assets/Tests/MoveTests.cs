@@ -78,6 +78,7 @@ public class MoveTests
             Vector2Int end = new Vector2Int(6, 4);
             
             Pawn pawn = new Pawn(ChessPieceColor.Black, start);
+            ChessBoard board = new ChessBoard(pawn);
             Move move = new Move(pawn, end);
             
             move.Execute();
@@ -91,6 +92,7 @@ public class MoveTests
             Vector2Int end = new Vector2Int(6, 3);
             
             Pawn pawn = new Pawn(ChessPieceColor.Black, start);
+            ChessBoard board = new ChessBoard(pawn);
             Move move = new Move(pawn, end);
             
             move.Execute();
@@ -134,6 +136,7 @@ public class MoveTests
             Vector2Int end = new Vector2Int(6, 4);
             
             Pawn pawn = new Pawn(ChessPieceColor.Black, start);
+            ChessBoard board = new ChessBoard(pawn);
             Move move = new Move(pawn, end);
             
             move.Execute();
@@ -148,6 +151,7 @@ public class MoveTests
             Vector2Int end = new Vector2Int(6, 4);
             
             Pawn pawn = new Pawn(ChessPieceColor.Black, start);
+            ChessBoard board = new ChessBoard(pawn);
             Move move = new Move(pawn, end);
             
             move.Undo();
@@ -157,16 +161,13 @@ public class MoveTests
         [Test]
         public void UndoRestoresOpponentPieceToBoard()
         {
-            ChessBoard board = new ChessBoard();
-
             Vector2Int whitePosition = new Vector2Int(3, 3);
             Vector2Int blackPosition = new Vector2Int(4, 4);
 
             Pawn whitePawn = new Pawn(ChessPieceColor.White, whitePosition);
             Pawn blackPawn = new Pawn(ChessPieceColor.Black, blackPosition);
             
-            board.AddPiece(whitePawn);
-            board.AddPiece(blackPawn);
+            ChessBoard board = new ChessBoard(whitePawn, blackPawn);
 
             Move move = new Move(whitePawn, blackPawn.Position);
 

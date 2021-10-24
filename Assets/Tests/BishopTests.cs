@@ -104,6 +104,7 @@ public class BishopTests
             Vector2Int position = new Vector2Int(1, 1);
 
             Bishop piece = new Bishop(ChessPieceColor.Black, position);
+            ChessBoard board = new ChessBoard(piece);
 
             List<Move> moves = piece.GetPossibleMoves();
             

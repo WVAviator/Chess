@@ -54,10 +54,10 @@ namespace Chess
                 for (int x = 0; x < 8; x++)
                 {
                     Vector2Int possiblePosition = new Vector2Int(x, y);
-                    if (!IsLegalMove(possiblePosition)) continue;
-                    
+
                     Move move = new Move(this, possiblePosition);
-                    moves.Add(move);
+
+                    if (IsLegalMove(possiblePosition)) moves.Add(move);
                 }
             }
             return moves;
@@ -65,12 +65,12 @@ namespace Chess
 
         protected bool OpponentInPosition(Vector2Int position)
         {
-            if (Board?.ChessPieces.FirstOrDefault(p => p.Position == position && p.Color != Color) != null) return true;
+            if (Board?.ChessPiecesByColor(Color.Opponent()).FirstOrDefault(p => p. Position == position) != null) return true;
             return false;
         }
         protected bool AllyInPosition(Vector2Int position)
         {
-            if (Board?.ChessPieces.FirstOrDefault(p => p.Position == position && p.Color == Color) != null) return true;
+            if (Board?.ChessPiecesByColor(Color).FirstOrDefault(p => p.Position == position) != null) return true;
             return false;
         }
         protected bool AnyPieceInPosition(Vector2Int position)

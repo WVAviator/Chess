@@ -6,16 +6,39 @@ namespace Chess
 {
     public class ChessBoard
     {
-        public List<ChessPiece> ChessPieces => _chessPieces;
-        List<ChessPiece> _chessPieces;
+        public List<ChessPiece> ChessPieces => _whitePieces.Concat(_blackPieces).ToList();
+
+        List<ChessPiece> _blackPieces;
+        List<ChessPiece> _whitePieces;
 
         public Stack<Move> MoveHistory => _moveHistory;
         Stack<Move> _moveHistory;
 
-        public ChessBoard()
+        public ChessBoard(params ChessPiece[] pieces)
         {
-            _chessPieces = new List<ChessPiece>();
+            _blackPieces = new List<ChessPiece>();
+            _whitePieces = new List<ChessPiece>();
             _moveHistory = new Stack<Move>();
+            
+            foreach (ChessPiece p in pieces) AddPiece(p);
+        }
+
+        public List<ChessPiece> ChessPiecesByColor(ChessPieceColor color)
+        {
+            return color == ChessPieceColor.Black ? _blackPieces : _whitePieces;
+        }
+
+        public bool IsInCheck(ChessPieceColor color)
+        {
+            King king = (King)ChessPiecesByColor(color).FirstOrDefault(p => p is King);
+            if (king == null) return false;
+            
+            foreach (ChessPiece piece in ChessPiecesByColor(color.Opponent()))
+            {
+                if (piece.IsLegalMove(king.Position)) return true;
+            }
+
+            return false;
         }
 
         public void AddToMoveHistory(Move move)
@@ -60,7 +83,7 @@ namespace Chess
         public List<Move> AllPossibleMoves(ChessPieceColor color)
         {
             List<Move> moves = new List<Move>();
-            foreach (ChessPiece piece in ChessPieces.FindAll(p => p.Color == color))
+            foreach (ChessPiece piece in ChessPiecesByColor(color))
             {
                 moves.AddRange(piece.GetPossibleMoves());
             }
@@ -71,13 +94,15 @@ namespace Chess
         public void AddPiece(ChessPiece newPiece)
         {
             newPiece.Board = this;
-            _chessPieces.Add(newPiece);
+            if (newPiece.Color == ChessPieceColor.Black) _blackPieces.Add(newPiece);
+            else _whitePieces.Add(newPiece);
         }
 
         public void RemovePiece(ChessPiece pieceToRemove)
         {
             pieceToRemove.Board = null;
-            _chessPieces.Remove(pieceToRemove);
+            if (pieceToRemove.Color == ChessPieceColor.Black) _blackPieces.Remove(pieceToRemove);
+            else _whitePieces.Remove(pieceToRemove);
         }
 
         public ChessPiece GetPieceAt(Vector2Int position)
