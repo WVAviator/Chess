@@ -9,14 +9,20 @@ using Object = UnityEngine.Object;
 
 public class ChessBoardBehaviourTests
 {
-    [UnityTest]
-    public IEnumerator AwakeSetsUpNewDefaultBoard()
+    GameObject chessBoardGameObject;
+
+    public ChessBoardBehaviourTests()
     {
         GameObject chessBoardGameObject = new GameObject();
         chessBoardGameObject.AddComponent<ChessBoardBehaviour>();
-        yield return null;
-
+    }
+    
+    [UnityTest]
+    public IEnumerator CorrectNumberOfPiecesGeneratedByNewBoard()
+    {
         ChessPieceBehaviour[] pieces = Object.FindObjectsOfType<ChessPieceBehaviour>();
         Assert.IsTrue(pieces.Length == 32);
+
+        yield return null;
     }
 }
