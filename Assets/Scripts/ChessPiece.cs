@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace Chess
     {
         public ChessPieceColor Color { get; }
         public ChessBoard Board { get; set; }
+        public abstract string PieceName { get; }
+        public event Action<Vector2Int> OnPieceMoved;
         public Vector2Int Position
         {
             get => _position;
@@ -33,6 +36,7 @@ namespace Chess
                 return;
             }
             Position = newPosition;
+            OnPieceMoved?.Invoke(newPosition);
         }
         static bool IsValidPosition(Vector2Int potentialPosition)
         {

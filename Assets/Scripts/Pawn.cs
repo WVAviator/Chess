@@ -7,6 +7,8 @@ namespace Chess
     {
         int _startingRow;
         int _movementDirection;
+        
+        public override string PieceName => "Pawn";
         public Pawn(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
             _startingRow = color == ChessPieceColor.Black ? 6 : 1;

@@ -5,6 +5,8 @@ namespace Chess
 {
     public class Queen : GlidingPiece
     {
+        
+        public override string PieceName => "Queen";
         public Queen(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
         }

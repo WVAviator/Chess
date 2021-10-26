@@ -8,6 +8,8 @@ namespace Chess
         public Bishop(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
         }
+        
+        public override string PieceName => "Bishop";
 
         public override bool IsLegalMove(Move move)
         {

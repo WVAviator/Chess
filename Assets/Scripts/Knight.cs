@@ -5,6 +5,8 @@ namespace Chess
 {
     public class Knight : ChessPiece
     {
+        
+        public override string PieceName => "Knight";
         public Knight(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
         }
