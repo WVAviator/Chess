@@ -5,110 +5,102 @@ using UnityEngine;
 
 public class BishopTests
 {
-    class IsLegalMove
+    class Scenario1
     {
-        [TestCase(3, 3, 4, 4, true)]
-        [TestCase(3, 3, 2, 4, true)]
-        [TestCase(3, 3, 0, 0, true)]
-        [TestCase(0, 7, 7, 0, true)]
-        [TestCase(3, 3, 3, 5, false)]
-        [TestCase(3, 3,3,3,false)]
-        [TestCase(3, 3, 0, 3, false)]
-        [TestCase(3, 3, 8, 8, false)]
-        public void BishopVerifiesMoveLegality(int startX, int startY, int endX, int endY, bool expected)
+
+        Bishop bishop;
+        Pawn pawn1;
+        Pawn pawn2;
+        Pawn pawn3;
+        ChessBoard board;
+
+        public Scenario1()
         {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
+            bishop = new Bishop(ChessPieceColor.White, new Vector2Int(5, 3));
+            pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(5, 5));
+            pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(3, 5));
+            pawn3 = new Pawn(ChessPieceColor.Black, new Vector2Int(3,1));
+            board = new ChessBoard(bishop, pawn1, pawn2, pawn3);
+        }
+        
+        [TestCase(6, 2, true)]
+        [TestCase(7, 1, true)]
+        [TestCase(4, 2, true)]
+        [TestCase(3, 1, true)]
+        [TestCase(2, 0, false)]
+        [TestCase(4, 4, true)]
+        [TestCase(3, 5, false)]
+        [TestCase(2, 6, false)]
+        [TestCase(6, 4, true)]
+        [TestCase(7, 5, true)]
+        [TestCase(5, 5, false)]
+        [TestCase(5, 4, false)]
+        [TestCase(5, 2, false)]
+        [TestCase(5, 3, false)]
+        [TestCase(6, 3, false)]
+        [TestCase(8, 0, false)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
 
-            Bishop bishop = new Bishop(ChessPieceColor.Black, start);
-
-            bool actual = bishop.IsLegalMove(end);
+            Move move = new Move(bishop, check);
+            bool actual = move.IsLegal();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void BishopFlagsIllegalMoveWhenBlocked()
+        public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int bishopStartPosition = new Vector2Int(0, 0);
-            Vector2Int bishopEndPosition = new Vector2Int(3, 3);
-            Vector2Int pawnPosition = new Vector2Int(1, 1);
-
-            Bishop bishop = new Bishop(ChessPieceColor.White, bishopStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(bishop);
-            board.AddPiece(pawn);
-
-            bool actual = bishop.IsLegalMove(bishopEndPosition);
-            Assert.AreEqual(false, actual);
+            List<Move> moves = bishop.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 7);
         }
         
-        [Test]
-        public void BishopFlagsIllegalMoveWhenBlocked2()
-        {
-            Vector2Int bishopStartPosition = new Vector2Int(3, 3);
-            Vector2Int bishopEndPosition = new Vector2Int(0, 6);
-            Vector2Int pawnPosition = new Vector2Int(1, 5);
-
-            Bishop bishop = new Bishop(ChessPieceColor.White, bishopStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(bishop);
-            board.AddPiece(pawn);
-
-            bool actual = bishop.IsLegalMove(bishopEndPosition);
-            Assert.AreEqual(false, actual);
-        }
-        
-        [Test]
-        public void MoveToTakeOpponentPieceIsLegal()
-        {
-            Vector2Int bishopStartPosition = new Vector2Int(0, 0);
-            Vector2Int pawnPosition = new Vector2Int(1, 1);
-
-            Bishop bishop = new Bishop(ChessPieceColor.White, bishopStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.Black, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(bishop);
-            board.AddPiece(pawn);
-
-            bool actual = bishop.IsLegalMove(pawnPosition);
-            Assert.AreEqual(true, actual);
-        }
-        
-        [Test]
-        public void MoveToTakeAllyPieceIsIllegal()
-        {
-            Vector2Int bishopStartPosition = new Vector2Int(0, 0);
-            Vector2Int pawnPosition = new Vector2Int(1, 1);
-
-            Bishop bishop = new Bishop(ChessPieceColor.White, bishopStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(bishop);
-            board.AddPiece(pawn);
-
-            bool actual = bishop.IsLegalMove(pawnPosition);
-            Assert.AreEqual(false, actual);
-        }
     }
-    class GetPossibleMoves
+    class Scenario2
     {
+        Bishop bishop;
+        Pawn pawn1;
+        Pawn pawn2;
+        ChessBoard board;
+
+        public Scenario2()
+        {
+            bishop = new Bishop(ChessPieceColor.White, new Vector2Int(2, 2));
+            pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(1, 3));
+            pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(5, 5));
+            board = new ChessBoard(bishop, pawn1, pawn2);
+        }
+        
+        [TestCase(2, 2, false)]
+        [TestCase(1, 1, true)]
+        [TestCase(0, 0, true)]
+        [TestCase(3, 1, true)]
+        [TestCase(4, 0, true)]
+        [TestCase(3, 3, true)]
+        [TestCase(4, 4, true)]
+        [TestCase(5, 5, false)]
+        [TestCase(6, 6, false)]
+        [TestCase(7, 7, false)]
+        [TestCase(-1, -1, false)]
+        [TestCase(1, 3, true)]
+        [TestCase(0, 4, false)]
+        [TestCase(2, 3, false)]
+        [TestCase(2, 1, false)]
+        [TestCase(3, 2, false)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(bishop, check);
+            bool actual = move.IsLegal();
+            Assert.AreEqual(expected, actual);
+        }
+
         [Test]
         public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int position = new Vector2Int(1, 1);
-
-            Bishop piece = new Bishop(ChessPieceColor.Black, position);
-            ChessBoard board = new ChessBoard(piece);
-
-            List<Move> moves = piece.GetPossibleMoves();
-            
-            Assert.IsTrue(moves.Count == 9);
+            List<Move> moves = bishop.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 7);
         }
     }
 }

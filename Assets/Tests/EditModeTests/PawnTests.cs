@@ -6,199 +6,121 @@ using UnityEngine;
 
 public class PawnTests
 {
-    class IsLegalMove
+    class Scenario1
     {
-        [TestCase(0, 1, 0, 2)]
-        [TestCase(0, 1, 0, 3)]
-        [TestCase(2, 2, 2, 3)]
-        public void WhitePawnVerifiesLegalMove(int startX, int startY, int endX, int endY)
-        {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
+        Pawn pawn;
+        Pawn pawn2;
+        ChessBoard board;
 
-            Pawn pawn = new Pawn(ChessPieceColor.White, start);
-            bool actual = pawn.IsLegalMove(end);
-            Assert.AreEqual(true, actual);
+        public Scenario1()
+        {
+            pawn = new Pawn(ChessPieceColor.White, new Vector2Int(3, 1));
+            pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(4, 2));
+
+            board = new ChessBoard(pawn, pawn2);
         }
 
-        [TestCase(0, 6, 0, 5)]
-        [TestCase(0, 6, 0, 4)]
-        [TestCase(4, 4, 4, 3)]
-        public void BlackPawnVerifiesLegalMove(int startX, int startY, int endX, int endY)
+        [TestCase(2, 2, false)]
+        [TestCase(3, 4, false)]
+        [TestCase(3, 0, false)]
+        [TestCase(3, 1, false)]
+        [TestCase(4, 1, false)]
+        [TestCase(2, 1, false)]
+        [TestCase(4, 2, true)]
+        [TestCase(3, 2, true)]
+        [TestCase(3, 3, true)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
         {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
 
-            Pawn pawn = new Pawn(ChessPieceColor.Black, start);
-            bool actual = pawn.IsLegalMove(end);
-            Assert.AreEqual(true, actual);
-        }
-        
-        [TestCase(0, 2, 1, 2)]
-        [TestCase(4, 4, 4, 3)]
-        [TestCase(0, 1, 1, 1)]
-        [TestCase(0, 2, 0, 4)]
-        [TestCase(0, 0, 0, 0)]
-        public void WhitePawnFlagsIllegalMove(int startX, int startY, int endX, int endY)
-        {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
-
-            Pawn pawn = new Pawn(ChessPieceColor.White, start);
-            bool actual = pawn.IsLegalMove(end);
-            Assert.AreEqual(false, actual);
-        }
-        
-        [TestCase(6, 6, 5, 6)]
-        [TestCase(5, 5, 6, 5)]
-        [TestCase(4, 4, 4, 5)]
-        [TestCase(4, 4, 4, 2)]
-        [TestCase(4,4,4,4)]
-        public void BlackPawnFlagsIllegalMove(int startX, int startY, int endX, int endY)
-        {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
-
-            Pawn pawn = new Pawn(ChessPieceColor.Black, start);
-            bool actual = pawn.IsLegalMove(end);
-            Assert.AreEqual(false, actual);
-        }
-
-        [TestCase(2, 2, 3, 3, true)]
-        [TestCase(3, 3, 2, 4, true)]
-        [TestCase(3, 3, 3, 4, false)]
-        [TestCase(3, 3,3, 5, false)]
-        [TestCase(3, 3, 3, 2, false)]
-        [TestCase(3, 3, 2, 3, false)]
-        public void WhitePawnCanTakeBlackPawn(int whiteX, int whiteY, int blackX, int blackY, bool expected)
-        {
-            Vector2Int whitePosition = new Vector2Int(whiteX, whiteY);
-            Pawn whitePawn = new Pawn(ChessPieceColor.White, whitePosition);
-
-            Vector2Int blackPosition = new Vector2Int(blackX, blackY);
-            Pawn blackPawn = new Pawn(ChessPieceColor.Black, blackPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(whitePawn);
-            board.AddPiece(blackPawn);
-            
-            bool actual = whitePawn.IsLegalMove(blackPawn.Position);
-            Assert.AreEqual(expected, actual);
-        }
-        
-        [TestCase(4, 4, 5, 5, true)]
-        [TestCase(4, 4, 3, 5, true)]
-        [TestCase(4, 4, 4, 5, false)]
-        [TestCase(4, 4, 4, 3, false)]
-        [TestCase(4, 4, 5, 4, false)]
-        public void BlackPawnCanTakeWhitePawn(int whiteX, int whiteY, int blackX, int blackY, bool expected)
-        {
-            Vector2Int whitePosition = new Vector2Int(whiteX, whiteY);
-            Pawn whitePawn = new Pawn(ChessPieceColor.White, whitePosition);
-
-            Vector2Int blackPosition = new Vector2Int(blackX, blackY);
-            Pawn blackPawn = new Pawn(ChessPieceColor.Black, blackPosition);
-            
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(whitePawn);
-            board.AddPiece(blackPawn);
-
-            bool actual = blackPawn.IsLegalMove(whitePawn.Position);
+            Move move = new Move(pawn, check);
+            bool actual = move.IsLegal();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void WhitePawnCannotJumpOverBlackPawn()
+        public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int whitePosition = new Vector2Int(3, 1);
-            Pawn whitePawn = new Pawn(ChessPieceColor.White, whitePosition);
-
-            Vector2Int blackPosition = new Vector2Int(3, 2);
-            Pawn blackPawn = new Pawn(ChessPieceColor.Black, blackPosition);
-            
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(whitePawn);
-            board.AddPiece(blackPawn);
-
-            bool actual = whitePawn.IsLegalMove(new Vector2Int(3, 3));
-            Assert.AreEqual(false, actual);
-        }
-        [Test]
-        public void BlackPawnCannotJumpOverWhitePawn()
-        {
-            Vector2Int whitePosition = new Vector2Int(3, 5);
-            Pawn whitePawn = new Pawn(ChessPieceColor.White, whitePosition);
-
-            Vector2Int blackPosition = new Vector2Int(3, 6);
-            Pawn blackPawn = new Pawn(ChessPieceColor.Black, blackPosition);
-            
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(whitePawn);
-            board.AddPiece(blackPawn);
-
-            bool actual = blackPawn.IsLegalMove(new Vector2Int(3, 4));
-            Assert.AreEqual(false, actual);
+            List<Move> moves = pawn.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 3);
         }
     }
-
-    class GetPossibleMoves
+    
+    class Scenario2
     {
-        [Test]
-        public void PawnGivesListOfMovesAtStart()
+        Pawn pawn;
+        Pawn pawn1;
+        Pawn pawn2;
+        ChessBoard board;
+
+        public Scenario2()
         {
-            Vector2Int pawnPosition = new Vector2Int(2, 1);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-            
-            ChessBoard board = new ChessBoard(pawn);
+            pawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 6));
+            pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(3, 5));
+            pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(2, 5));
 
-            List<Move> possibleMoves = pawn.GetPossibleMoves();
+            board = new ChessBoard(pawn, pawn1, pawn2);
+        }
 
-            Vector2Int expected01 = new Vector2Int(2, 2);
-            Vector2Int expected02 = new Vector2Int(2, 3);
-            
-            Assert.IsTrue(possibleMoves.Any(m => m.NewPosition == expected01));
-            Assert.IsTrue(possibleMoves.Any(m => m.NewPosition == expected02));
-            Assert.IsTrue(possibleMoves.Count == 2);
+        [TestCase(3, 4, false)]
+        [TestCase(3, 5, false)]
+        [TestCase(4, 5, false)]
+        [TestCase(4, 6, false)]
+        [TestCase(2, 6, false)]
+        [TestCase(2, 7, false)]
+        [TestCase(2, 5, true)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(pawn, check);
+            bool actual = move.IsLegal();
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void PawnGivesEmptyListOfPossibleMovesWhenBlocked()
+        public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int pawnPosition = new Vector2Int(2, 1);
-            Vector2Int bishopPosition = new Vector2Int(2, 2);
-            
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-            Bishop bishop = new Bishop(ChessPieceColor.Black, bishopPosition);
+            List<Move> moves = pawn.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 1);
+        }
+    }
+    class Scenario3
+    {
+        Pawn pawn;
+        Pawn pawn1;
+        Pawn pawn2;
+        ChessBoard board;
 
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(pawn);
-            board.AddPiece(bishop);
+        public Scenario3()
+        {
+            pawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 5));
+            pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(2, 4));
+            pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
 
-            List<Move> possibleMoves = pawn.GetPossibleMoves();
+            board = new ChessBoard(pawn, pawn1, pawn2);
+        }
 
-            Assert.IsTrue(possibleMoves.Count == 0);
+        [TestCase(3, 3, false)]
+        [TestCase(2, 4, false)]
+        [TestCase(2, 5, false)]
+        [TestCase(3, 6, false)]
+        [TestCase(4, 4, true)]
+        [TestCase(3, 4, true)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(pawn, check);
+            bool actual = move.IsLegal();
+            Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void PawnListsEnemiesInPossibleMovesWhenTheyAreDiagonal()
+        public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int pawnPosition = new Vector2Int(2, 1);
-            Vector2Int bishopPosition = new Vector2Int(3, 2);
-            Vector2Int knightPosition = new Vector2Int(1, 2);
-            
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-            Bishop bishop = new Bishop(ChessPieceColor.Black, bishopPosition);
-            Knight knight = new Knight(ChessPieceColor.White, knightPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(pawn);
-            board.AddPiece(bishop);
-            board.AddPiece(knight);
-
-            List<Move> possibleMoves = pawn.GetPossibleMoves();
-
-            Assert.IsTrue(possibleMoves.Any(m => m.NewPosition == bishopPosition));
-            Assert.IsTrue(possibleMoves.Count == 3);
+            List<Move> moves = pawn.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 2);
         }
     }
 }

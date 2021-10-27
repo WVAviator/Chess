@@ -5,104 +5,97 @@ using UnityEngine;
 
 public class RookTests
 {
-    class IsLegalMove
+    class Scenario1
     {
-        [TestCase(0,0,0,6, true)]
-        [TestCase(0,0,6,0, true)]
-        [TestCase(5,5,2,5, true)]
-        [TestCase(4,4,0,4, true)]
-        [TestCase(4, 4, 3, 3, false)]
-        [TestCase(3, 2, 4, 4, false)]
-        [TestCase(3, 3, 3, 3, false)]
-        [TestCase(3, 3, 3, 8, false)]
-        public void RookVerifiesMoveLegality(int startX, int startY, int endX, int endY, bool expected)
+        Rook rook;
+        Pawn pawn1;
+        Pawn pawn2;
+        ChessBoard board;
+
+        public Scenario1()
         {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
+            rook = new Rook(ChessPieceColor.White, new Vector2Int(1, 2));
+            pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(1, 6));
+            pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 2));
 
-            Rook rook = new Rook(ChessPieceColor.Black, start);
+            board = new ChessBoard(pawn1, pawn2, rook);
+        }
 
-            bool actual = rook.IsLegalMove(end);
+        [TestCase(1, 6, false)]
+        [TestCase(1, 7, false)]
+        [TestCase(2, 3, false)]
+        [TestCase(-1, 2, false)]
+        [TestCase(1, 2, false)]
+        [TestCase(4, 2, false)]
+        [TestCase(7, 2, false)]
+        [TestCase(3, 2, true)]
+        [TestCase(0, 2, true)]
+        [TestCase(1, 5, true)]
+        [TestCase(1, 0, true)]
+        [TestCase(1, 1, true)]
+        [TestCase(2, 2, true)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(rook, check);
+            bool actual = move.IsLegal();
             Assert.AreEqual(expected, actual);
         }
-        
-        [Test]
-        public void RookFlagsIllegalMoveWhenBlockedByAlly()
-        {
-            Vector2Int rookStartPosition = new Vector2Int(0, 0);
-            Vector2Int rookEndPosition = new Vector2Int(0, 2);
-            Vector2Int pawnPosition = new Vector2Int(0, 1);
 
-            Rook rook = new Rook(ChessPieceColor.White, rookStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(rook);
-            board.AddPiece(pawn);
-
-            bool actual = rook.IsLegalMove(rookEndPosition);
-            Assert.AreEqual(false, actual);
-        }
-
-        [Test]
-        public void MoveToTakeOpponentPieceIsLegal()
-        {
-            Vector2Int rookStartPosition = new Vector2Int(0, 0);
-            Vector2Int pawnPosition = new Vector2Int(0, 1);
-
-            Rook rook = new Rook(ChessPieceColor.White, rookStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.Black, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(rook);
-            board.AddPiece(pawn);
-
-            bool actual = rook.IsLegalMove(pawnPosition);
-            Assert.AreEqual(true, actual);
-        }
-        
-        [Test]
-        public void MoveToTakeAllyPieceIsIllegal()
-        {
-            Vector2Int rookStartPosition = new Vector2Int(0, 0);
-            Vector2Int pawnPosition = new Vector2Int(0, 1);
-
-            Rook rook = new Rook(ChessPieceColor.White, rookStartPosition);
-            Pawn pawn = new Pawn(ChessPieceColor.White, pawnPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(rook);
-            board.AddPiece(pawn);
-
-            bool actual = rook.IsLegalMove(pawnPosition);
-            Assert.AreEqual(false, actual);
-        }
-
-        [Test]
-        public void PuttingKingInCheckIsIllegalMove()
-        {
-            King king = new King(ChessPieceColor.White, new Vector2Int(5, 0));
-            Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(5, 1));
-            Queen opponentQueen = new Queen(ChessPieceColor.Black, new Vector2Int(5, 5));
-            ChessBoard board = new ChessBoard(king, rook, opponentQueen);
-
-            Move move = new Move(rook, new Vector2Int(3, 1));
-            Assert.IsFalse(move.IsLegal());
-        }
-    }
-    class GetPossibleMoves
-    {
         [Test]
         public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int position = new Vector2Int(1, 1);
+            List<Move> moves = rook.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 8);
+        }
+    }
+    
+    class Scenario2
+    {
+        Rook rook;
+        Pawn pawn1;
+        Pawn pawn2;
+        Pawn pawn3;
+        ChessBoard board;
 
-            Rook piece = new Rook(ChessPieceColor.Black, position);
-            ChessBoard board = new ChessBoard(piece);
+        public Scenario2()
+        {
+            rook = new Rook(ChessPieceColor.Black, new Vector2Int(5, 6));
+            pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(2, 6));
+            pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(3, 4));
+            pawn3 = new Pawn(ChessPieceColor.Black, new Vector2Int(5, 1));
 
-            List<Move> moves = piece.GetPossibleMoves();
-            
-            Assert.IsTrue(moves.Count == 14);
+            board = new ChessBoard(pawn1, pawn2, pawn3, rook);
+        }
+
+        [TestCase(1, 6, false)]
+        [TestCase(0, 6, false)]
+        [TestCase(3, 4, false)]
+        [TestCase(8, 6, false)]
+        [TestCase(5, 6, false)]
+        [TestCase(5, 0, false)]
+        [TestCase(5, 1, false)]
+        [TestCase(2, 6, true)]
+        [TestCase(5, 2, true)]
+        [TestCase(7, 6, true)]
+        [TestCase(5, 7, true)]
+        [TestCase(6, 6, true)]
+        [TestCase(5, 4, true)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(rook, check);
+            bool actual = move.IsLegal();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void ReturnsCorrectNumberOfPossibleMoves()
+        {
+            List<Move> moves = rook.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 10);
         }
     }
 }

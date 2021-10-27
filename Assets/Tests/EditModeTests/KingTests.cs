@@ -5,55 +5,91 @@ using UnityEngine;
 
 public class KingTests
 {
-    class IsLegalMove
+    class Scenario1
     {
-        [TestCase(2,2,2,3,true)]
-        [TestCase(2, 2, 3, 4, false)]
-        [TestCase(0,0,0,0,false)]
-        [TestCase(2, 2, 3, 2, true)]
-        [TestCase(0, 0, 0, -1, false)]
-        public void KingVerifiesMoveLegality(int startX, int startY, int endX, int endY, bool expected)
+        King king;
+        Pawn pawn1;
+        Pawn pawn2;
+        ChessBoard board;
+
+        public Scenario1()
         {
-            Vector2Int start = new Vector2Int(startX, startY);
-            Vector2Int end = new Vector2Int(endX, endY);
+            king = new King(ChessPieceColor.Black, new Vector2Int(4, 3));
+            pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
+            pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(5, 3));
+            board = new ChessBoard(king, pawn1, pawn2);
+        }
+        
+        [TestCase(3,3,true)]
+        [TestCase(3,4,true)]
+        [TestCase(4,4,true)]
+        [TestCase(5,4,true)]
+        [TestCase(5,3,false)]
+        [TestCase(5,2,true)]
+        [TestCase(4,2,true)]
+        [TestCase(3,2,true)]
+        [TestCase(4,1,false)]
+        [TestCase(6,3,false)]
+        [TestCase(4,5,false)]
+        [TestCase(4,3,false)]
+        [TestCase(2,3,false)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
 
-            King king = new King(ChessPieceColor.Black, start);
-
-            bool actual = king.IsLegalMove(end);
+            Move move = new Move(king, check);
+            bool actual = move.IsLegal();
             Assert.AreEqual(expected, actual);
         }
 
         [Test]
-        public void KingCannotMoveToSpaceOccupiedByAlly()
+        public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int kingPosition = new Vector2Int(0, 0);
-            Vector2Int pawnPosition = new Vector2Int(0, 1);
-
-            Pawn pawn = new Pawn(ChessPieceColor.Black, pawnPosition);
-            King king = new King(ChessPieceColor.Black, kingPosition);
-
-            ChessBoard board = new ChessBoard();
-            board.AddPiece(king);
-            board.AddPiece(pawn);
-
-            bool actual = king.IsLegalMove(pawnPosition);
-            Assert.AreEqual(false, actual);
+            List<Move> moves = king.GetPossibleMoves();
+            Assert.IsTrue(moves.Count == 7);
         }
     }
-
-    class GetPossibleMoves
+    
+    class Scenario2
     {
+        King king;
+        Pawn pawn;
+        Queen queen;
+        ChessBoard board;
+
+        public Scenario2()
+        {
+            king = new King(ChessPieceColor.White, new Vector2Int(3, 2));
+            pawn = new Pawn(ChessPieceColor.White, new Vector2Int(3, 1));
+            queen = new Queen(ChessPieceColor.Black, new Vector2Int(5, 2));
+            board = new ChessBoard(king, pawn, queen);
+        }
+        
+        [TestCase(2,1,true)]
+        [TestCase(2,2,false)]
+        [TestCase(2,3,true)]
+        [TestCase(3,3,true)]
+        [TestCase(4,3,false)]
+        [TestCase(4,2,false)]
+        [TestCase(4,1,false)]
+        [TestCase(3,1,false)]
+        [TestCase(3,0,false)]
+        [TestCase(5,2,false)]
+        [TestCase(3,2,false)]
+        public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
+        {
+            Vector2Int check = new Vector2Int(xCheck, yCheck);
+
+            Move move = new Move(king, check);
+            bool actual = move.IsLegal();
+            Assert.AreEqual(expected, actual);
+        }
+
         [Test]
         public void ReturnsCorrectNumberOfPossibleMoves()
         {
-            Vector2Int kingPosition = new Vector2Int(3, 3);
-
-            King king = new King(ChessPieceColor.Black, kingPosition);
-            ChessBoard board = new ChessBoard(king);
-
             List<Move> moves = king.GetPossibleMoves();
-            
-            Assert.IsTrue(moves.Count == 8);
+            Assert.IsTrue(moves.Count == 3);
         }
     }
 }

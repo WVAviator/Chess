@@ -61,7 +61,7 @@ namespace Chess
 
                     Move move = new Move(this, possiblePosition);
 
-                    if (IsLegalMove(possiblePosition)) moves.Add(move);
+                    if (move.IsLegal()) moves.Add(move);
                 }
             }
             return moves;

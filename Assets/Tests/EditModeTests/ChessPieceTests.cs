@@ -19,67 +19,10 @@ public class ChessPieceTests
             ChessPieceColor actual = pawn.Color;
             Assert.AreEqual(actual, color);
         }
-
-        [TestCase(ChessPieceColor.White)]
-        [TestCase(ChessPieceColor.Black)]
-        public void Property_RookReturnsCorrectColor(ChessPieceColor color)
-        {
-            Rook rook = new Rook(color);
-            ChessPieceColor actual = rook.Color;
-            Assert.AreEqual(actual, color);
-        }
-
-        [TestCase(ChessPieceColor.White)]
-        [TestCase(ChessPieceColor.Black)]
-        public void Property_BishopReturnsCorrectColor(ChessPieceColor color)
-        {
-            Bishop bishop = new Bishop(color);
-            ChessPieceColor actual = bishop.Color;
-            Assert.AreEqual(actual, color);
-        }
-
-        [TestCase(ChessPieceColor.White)]
-        [TestCase(ChessPieceColor.Black)]
-        public void Property_KnightReturnsCorrectColor(ChessPieceColor color)
-        {
-            Knight knight = new Knight(color);
-            ChessPieceColor actual = knight.Color;
-            Assert.AreEqual(actual, color);
-        }
-
-        [TestCase(ChessPieceColor.White)]
-        [TestCase(ChessPieceColor.Black)]
-        public void Property_QueenReturnsCorrectColor(ChessPieceColor color)
-        {
-            Queen queen = new Queen(color);
-            ChessPieceColor actual = queen.Color;
-            Assert.AreEqual(actual, color);
-        }
-
-        [TestCase(ChessPieceColor.White)]
-        [TestCase(ChessPieceColor.Black)]
-        public void Property_KingReturnsCorrectColor(ChessPieceColor color)
-        {
-            King king = new King(color);
-            ChessPieceColor actual = king.Color;
-            Assert.AreEqual(actual, color);
-        }
     }
 
     class Position
     {
-        
-        
-        [TestCase(0, 0)]
-        [TestCase(1, 4)]
-        [TestCase(6, 6)]
-        public void Property_PawnReturnsCorrectPosition(int x, int y)
-        {
-            Vector2Int expected = new Vector2Int(x, y);
-            Pawn pawn = new Pawn(ChessPieceColor.White, expected);
-            Vector2Int actual = pawn.Position;
-            Assert.AreEqual(actual, expected);
-        }
         
         [TestCase(0, 0)]
         [TestCase(1, 4)]
@@ -91,51 +34,7 @@ public class ChessPieceTests
             Vector2Int actual = rook.Position;
             Assert.AreEqual(actual, expected);
         }
-        
-        [TestCase(0, 0)]
-        [TestCase(1, 4)]
-        [TestCase(6, 6)]
-        public void Property_KnightReturnsCorrectPosition(int x, int y)
-        {
-            Vector2Int expected = new Vector2Int(x, y);
-            Knight knight = new Knight(ChessPieceColor.White, expected);
-            Vector2Int actual = knight.Position;
-            Assert.AreEqual(actual, expected);
-        }
-        
-        [TestCase(0, 0)]
-        [TestCase(1, 4)]
-        [TestCase(6, 6)]
-        public void Property_BishopReturnsCorrectPosition(int x, int y)
-        {
-            Vector2Int expected = new Vector2Int(x, y);
-            Bishop bishop = new Bishop(ChessPieceColor.White, expected);
-            Vector2Int actual = bishop.Position;
-            Assert.AreEqual(actual, expected);
-        }
-        
-        [TestCase(0, 0)]
-        [TestCase(1, 4)]
-        [TestCase(6, 6)]
-        public void Property_QueenReturnsCorrectPosition(int x, int y)
-        {
-            Vector2Int expected = new Vector2Int(x, y);
-            Queen queen = new Queen(ChessPieceColor.White, expected);
-            Vector2Int actual = queen.Position;
-            Assert.AreEqual(actual, expected);
-        }
-        
-        [TestCase(0, 0)]
-        [TestCase(1, 4)]
-        [TestCase(6, 6)]
-        public void Property_KingReturnsCorrectPosition(int x, int y)
-        {
-            Vector2Int expected = new Vector2Int(x, y);
-            King king = new King(ChessPieceColor.White, expected);
-            Vector2Int actual = king.Position;
-            Assert.AreEqual(actual, expected);
-        }
-        
+
         [TestCase(-1, 0)]
         [TestCase(-6, 44)]
         [TestCase(6, 8)]
