@@ -9,7 +9,9 @@ namespace Chess
     public abstract class ChessPiece
     {
         public ChessPieceColor Color { get; }
-        public ChessBoard Board { get; set; }
+        
+        public ChessBoard Board;
+
         public abstract string PieceName { get; }
         public event Action<Vector2Int> OnPieceMoved;
         public Vector2Int Position
@@ -46,6 +48,8 @@ namespace Chess
         }
 
         public bool IsLegalMove(Vector2Int newPosition) => IsLegalMove(new Move(this, newPosition));
+
+        public bool IsMyTurn() => Board.PlayerTurn == Color;
 
         public abstract bool IsLegalMove(Move move);
         

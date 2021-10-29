@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,17 +9,24 @@ namespace Chess
     {
         public List<ChessPiece> ChessPieces => _whitePieces.Concat(_blackPieces).ToList();
 
+        public ChessPieceColor PlayerTurn;
+
         List<ChessPiece> _blackPieces;
         List<ChessPiece> _whitePieces;
 
         public Stack<Move> MoveHistory => _moveHistory;
         Stack<Move> _moveHistory;
 
+        public event Action<ChessPiece> OnPieceAdded;
+        public event Action<ChessPiece> OnPieceRemoved;
+
         public ChessBoard(params ChessPiece[] pieces)
         {
             _blackPieces = new List<ChessPiece>();
             _whitePieces = new List<ChessPiece>();
             _moveHistory = new Stack<Move>();
+
+            PlayerTurn = ChessPieceColor.White;
             
             foreach (ChessPiece p in pieces) AddPiece(p);
         }
@@ -27,6 +35,8 @@ namespace Chess
         {
             return color == ChessPieceColor.Black ? _blackPieces : _whitePieces;
         }
+
+        void NextPlayerTurn() => PlayerTurn = PlayerTurn.Opponent();
 
         public bool IsInCheck(ChessPieceColor color)
         {
@@ -41,15 +51,22 @@ namespace Chess
             return false;
         }
 
+        public bool IsCheckmate(ChessPieceColor color) => AllPossibleMoves(color).Count == 0;
+
         public void AddToMoveHistory(Move move)
         {
             MoveHistory.Push(move);
+            NextPlayerTurn();
+            if (IsCheckmate(PlayerTurn)) Debug.Log($"Checkmate! {PlayerTurn.Opponent()} wins!");
         }
 
         public Move RemoveFromMoveHistory()
         {
+            NextPlayerTurn();
             return MoveHistory.Pop();
         }
+        
+        public Move MostRecentMove() => MoveHistory.Peek();
 
         public void SetupStandard()
         {
@@ -96,6 +113,7 @@ namespace Chess
             newPiece.Board = this;
             if (newPiece.Color == ChessPieceColor.Black) _blackPieces.Add(newPiece);
             else _whitePieces.Add(newPiece);
+            OnPieceAdded?.Invoke(newPiece);
         }
 
         public void RemovePiece(ChessPiece pieceToRemove)
@@ -103,6 +121,7 @@ namespace Chess
             pieceToRemove.Board = null;
             if (pieceToRemove.Color == ChessPieceColor.Black) _blackPieces.Remove(pieceToRemove);
             else _whitePieces.Remove(pieceToRemove);
+            OnPieceRemoved?.Invoke(pieceToRemove);
         }
 
         public ChessPiece GetPieceAt(Vector2Int position)

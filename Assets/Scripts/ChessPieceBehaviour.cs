@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chess
@@ -10,23 +12,27 @@ namespace Chess
 
         SpriteRenderer _spriteRenderer;
 
-        void Awake()
+        static List<ChessPieceBehaviour> AllPieces = new List<ChessPieceBehaviour>();
+
+        void Awake() => _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        void OnEnable() => AllPieces.Add(this);
+
+        void OnDisable()
         {
-            _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            AllPieces.Remove(this);
         }
 
+        public static ChessPieceBehaviour FindBy(Vector2Int position) =>
+            AllPieces.FirstOrDefault(p => p.ChessPiece.Position == position);
+        
         public void Initialize(ChessPiece piece)
         {
             _chessPiece = piece;
-            _chessPiece.OnPieceMoved += SetPosition;
-            SetPosition(piece.Position);
             SetSprite();
         }
 
-        void SetSprite()
-        {
-            _spriteRenderer.sprite = GetSpriteFromFile();
-        }
+        void SetSprite() => _spriteRenderer.sprite = GetSpriteFromFile();
 
         Sprite GetSpriteFromFile()
         {
@@ -42,12 +48,5 @@ namespace Chess
             
             return String.Join("/", basePath, colorPath, piecePath);
         }
-
-        void SetPosition(Vector2Int position)
-        {
-            transform.position = new Vector3(position.x, position.y, -0.05f);
-        }
-
-        void OnDisable() => _chessPiece.OnPieceMoved -= SetPosition;
     }
 }

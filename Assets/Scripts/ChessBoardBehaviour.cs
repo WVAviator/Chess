@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Chess
@@ -9,18 +10,52 @@ namespace Chess
         ChessBoard _chessBoard;
 
         ChessPieceBehaviour _chessPieceBehaviourPrefab;
+        Square _squarePrefab;
+
+        Dictionary<ChessPiece, ChessPieceBehaviour> _chessPieceDictionary;
 
         void Awake()
         {
             _chessBoard = new ChessBoard();
             _chessBoard.SetupStandard();
-            _chessPieceBehaviourPrefab = Resources.Load<ChessPieceBehaviour>("Prefabs/ChessPiece");
 
+            _chessBoard.OnPieceAdded += ReactivatePiece;
+            _chessBoard.OnPieceRemoved += DeactivatePiece;
+            
+            _chessPieceBehaviourPrefab = Resources.Load<ChessPieceBehaviour>("Prefabs/ChessPiece");
+            _squarePrefab = Resources.Load<Square>("Prefabs/Square");
+            
+            _chessPieceDictionary = new Dictionary<ChessPiece, ChessPieceBehaviour>();
+            
             foreach (ChessPiece piece in _chessBoard.ChessPieces)
             {
                 ChessPieceBehaviour chessPieceBehaviour = Instantiate(_chessPieceBehaviourPrefab, transform);
                 chessPieceBehaviour.Initialize(piece);
+                _chessPieceDictionary[piece] = chessPieceBehaviour;
             }
+
+            SetupSquares();
+        }
+
+        void SetupSquares()
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    Instantiate(_squarePrefab, new Vector2(x, y), Quaternion.identity, transform);
+                }
+            }
+        }
+
+        void DeactivatePiece(ChessPiece piece)
+        {
+            _chessPieceDictionary[piece].gameObject.SetActive(false);
+        }
+
+        void ReactivatePiece(ChessPiece piece)
+        {
+            _chessPieceDictionary[piece].gameObject.SetActive(true);
         }
     }
 }

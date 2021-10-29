@@ -41,8 +41,11 @@ namespace Chess
 
         public bool IsLegal()
         {
-            return !PutsKingInCheck() && _chessPiece.IsLegalMove(this);
+            return !PutsKingInCheck() && _chessPiece.IsLegalMove(this) && IsMyTurn();
         }
+
+        bool IsMyTurn() => _chessPiece.Board.PlayerTurn == _chessPiece.Color;
+        
 
         public void Execute()
         {
@@ -62,6 +65,7 @@ namespace Chess
         public void Undo()
         {
             if (!_isExecuted) return;
+            _isExecuted = false;
             
             if (_chessPiece.Board.MoveHistory.Peek() != this)
             {
@@ -90,6 +94,7 @@ namespace Chess
             _chessPiece.MoveTo(NewPosition);
             foreach (ChessPiece piece in _chessPiece.Board.ChessPiecesByColor(_chessPiece.Color.Opponent()))
             {
+                if (piece == _targetOpponent) continue;
                 if (piece.IsLegalMove(king.Position)) inCheck = true;
             }
             _chessPiece.MoveTo(OldPosition);
