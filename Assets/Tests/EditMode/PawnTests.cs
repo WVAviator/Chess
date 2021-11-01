@@ -162,5 +162,40 @@ namespace Tests.EditMode
                 Assert.IsTrue(moves.Count == 1);
             }
         }
+
+        class EnPassant
+        {
+            [Test]
+            public void WhiteCanTakeBlackEnPassant()
+            {
+                Pawn whitePawn = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
+                Pawn blackPawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 6));
+                ChessBoard chessBoard = new ChessBoard(whitePawn, blackPawn);
+                chessBoard.PlayerTurn = ChessPieceColor.Black;
+
+                Move blackMove = new Move(blackPawn, new Vector2Int(3, 4));
+                blackMove.Execute();
+
+                Move whiteMove = new Move(whitePawn, new Vector2Int(3, 5));
+                
+                Assert.IsTrue(whiteMove.IsLegal());
+            }
+
+            [Test]
+            public void BlackTakesWhiteEnPassant()
+            {
+                Pawn whitePawn = new Pawn(ChessPieceColor.White, new Vector2Int(4, 1));
+                Pawn blackPawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 3));
+                ChessBoard chessBoard = new ChessBoard(whitePawn, blackPawn);
+
+                Move whiteMove = new Move(whitePawn, new Vector2Int(4, 3));
+                whiteMove.Execute();
+
+                Move blackMove = new Move(blackPawn, new Vector2Int(4, 2));
+                blackMove.Execute();
+                
+                Assert.IsFalse(chessBoard.ChessPieces.Contains(whitePawn));
+            }
+        }
     }
 }

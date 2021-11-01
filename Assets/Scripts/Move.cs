@@ -8,57 +8,58 @@ namespace Chess
     {
         public Vector2Int NewPosition => _newPosition;
         readonly Vector2Int _newPosition;
-
         public Vector2Int OldPosition => _oldPosition;
         readonly Vector2Int _oldPosition;
+
         public int YDifference { get; }
         public int XDifference { get; }
         public int YDirection { get; }
         public int XDirection { get; }
 
-        ChessPiece _chessPiece;
-        ChessPiece _targetOpponent;
+        public ChessPiece ChessPiece { get; }
+        
+        public ChessPiece TargetOpponent { get; set; }
 
         bool _isExecuted;
 
-        public Move(ChessPiece piece, Vector2Int newPosition)
+        public Move(ChessPiece chessPiece, Vector2Int newPosition)
         {
             _newPosition = newPosition;
-            _chessPiece = piece;
-            _oldPosition = piece.Position;
+            ChessPiece = chessPiece;
+            _oldPosition = chessPiece.Position;
             
-            if (!IsValidPosition(_newPosition)) _newPosition = piece.Position;
+            if (!IsValidPosition(_newPosition)) _newPosition = chessPiece.Position;
 
-            YDifference = _newPosition.y - piece.Position.y;
-            XDifference = _newPosition.x - piece.Position.x;
+            YDifference = _newPosition.y - _oldPosition.y;
+            XDifference = _newPosition.x - _oldPosition.x;
             YDirection = Math.Sign(YDifference);
             XDirection = Math.Sign(XDifference);
             
-            _targetOpponent = _chessPiece.Board?
-                .ChessPiecesByColor(_chessPiece.Color.Opponent())
+            TargetOpponent = ChessPiece.Board?
+                .ChessPiecesByColor(ChessPiece.Color.Opponent())
                 .FirstOrDefault(p => p.Position == NewPosition);
         }
 
         public bool IsLegal()
         {
-            return !PutsKingInCheck() && _chessPiece.IsLegalMove(this) && IsMyTurn();
+            return !PutsKingInCheck() && ChessPiece.IsLegalMove(this) && IsMyTurn();
         }
 
-        bool IsMyTurn() => _chessPiece.Board.PlayerTurn == _chessPiece.Color;
+        bool IsMyTurn() => ChessPiece.Board.PlayerTurn == ChessPiece.Color;
         
 
         public void Execute()
         {
             if (!IsLegal())
             {
-                Debug.LogError($"Attempted to execute illegal move: {_chessPiece.GetType().Name} at {_chessPiece.Position} cannot move to {NewPosition}");
+                Debug.LogError($"Attempted to execute illegal move: {ChessPiece.GetType().Name} at {ChessPiece.Position} cannot move to {NewPosition}");
                 return;
             }
-            _chessPiece.MoveTo(NewPosition);
+            ChessPiece.MoveTo(NewPosition);
 
-            if (_targetOpponent != null) _chessPiece.Board.RemovePiece(_targetOpponent);
+            if (TargetOpponent != null) ChessPiece.Board.RemovePiece(TargetOpponent);
             
-            _chessPiece.Board.AddToMoveHistory(this);
+            ChessPiece.Board.AddToMoveHistory(this);
             _isExecuted = true;
         }
 
@@ -67,37 +68,38 @@ namespace Chess
             if (!_isExecuted) return;
             _isExecuted = false;
             
-            if (_chessPiece.Board.MoveHistory.Peek() != this)
+            if (ChessPiece.Board.MoveHistory.Peek() != this)
             {
-                Debug.LogError($"Attempted to undo moves out of order! Move {_chessPiece.GetType().Name} to {NewPosition} is not the most recent move.");
+                Debug.LogError($"Attempted to undo moves out of order! Move {ChessPiece.GetType().Name} to {NewPosition} is not the most recent move.");
                 return;
             }
-            _chessPiece.MoveTo(OldPosition);
-            if (_targetOpponent != null) _chessPiece.Board.AddPiece(_targetOpponent);
-            _chessPiece.Board.RemoveFromMoveHistory();
+            ChessPiece.MoveTo(_oldPosition);
+            if (TargetOpponent != null) ChessPiece.Board.AddPiece(TargetOpponent);
+            ChessPiece.Board.RemoveFromMoveHistory();
         }
         
         static bool IsValidPosition(Vector2Int potentialPosition)
         {
             bool isValid = potentialPosition.x >= 0 && potentialPosition.y >= 0 
-                                                    && potentialPosition.x <= 7 && potentialPosition.y <= 7;
+                           && potentialPosition.x <= 7 && potentialPosition.y <= 7;
             return isValid;
         }
 
         bool PutsKingInCheck()
         {
-            King king = (King)_chessPiece.Board.ChessPieces.Find(p => p is King && p.Color == _chessPiece.Color);
+            King king = (King)ChessPiece.Board.ChessPieces.Find(p => p is King && p.Color == ChessPiece.Color);
             if (king == null) return false;
             
             bool inCheck = false;
             
-            _chessPiece.MoveTo(NewPosition);
-            foreach (ChessPiece piece in _chessPiece.Board.ChessPiecesByColor(_chessPiece.Color.Opponent()))
+            ChessPiece.MoveTo(NewPosition);
+            
+            foreach (ChessPiece piece in ChessPiece.Board.ChessPiecesByColor(ChessPiece.Color.Opponent()))
             {
-                if (piece == _targetOpponent) continue;
+                if (piece == TargetOpponent) continue;
                 if (piece.IsLegalMove(king.Position)) inCheck = true;
             }
-            _chessPiece.MoveTo(OldPosition);
+            ChessPiece.MoveTo(_oldPosition);
 
             return inCheck;
         }
