@@ -11,6 +11,9 @@ namespace Chess
         public Vector2Int OldPosition => _oldPosition;
         readonly Vector2Int _oldPosition;
 
+        Rook _castleRook;
+        bool _isCastle;
+
         public int YDifference { get; }
         public int XDifference { get; }
         public int YDirection { get; }
@@ -21,6 +24,7 @@ namespace Chess
         public ChessPiece TargetOpponent { get; set; }
 
         bool _isExecuted;
+        Vector2Int _castleRookStartPosition;
 
         public Move(ChessPiece chessPiece, Vector2Int newPosition)
         {
@@ -56,6 +60,8 @@ namespace Chess
                 return;
             }
             ChessPiece.MoveTo(NewPosition);
+            if (_isCastle) _castleRook.MoveTo(NewPosition + new Vector2Int(-XDirection, 0));
+            
 
             if (TargetOpponent != null) ChessPiece.Board.RemovePiece(TargetOpponent);
             
@@ -74,6 +80,7 @@ namespace Chess
                 return;
             }
             ChessPiece.MoveTo(_oldPosition);
+            if (_isCastle) _castleRook.MoveTo(_castleRookStartPosition);
             if (TargetOpponent != null) ChessPiece.Board.AddPiece(TargetOpponent);
             ChessPiece.Board.RemoveFromMoveHistory();
         }
@@ -102,6 +109,13 @@ namespace Chess
             ChessPiece.MoveTo(_oldPosition);
 
             return inCheck;
+        }
+
+        public void IsCastle(Rook rook)
+        {
+            _isCastle = true;
+            _castleRook = rook;
+            _castleRookStartPosition = rook.Position;
         }
     }
 }

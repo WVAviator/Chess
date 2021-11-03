@@ -129,5 +129,9 @@ namespace Chess
             return ChessPieces.FirstOrDefault(p => p.Position == position);
         }
 
+        public bool HasMoved(ChessPiece piece)
+        {
+            return MoveHistory.Any(m => m.ChessPiece == piece);
+        }
     }
 }

@@ -95,5 +95,44 @@ namespace Tests.EditMode
                 Assert.IsTrue(moves.Count == 3);
             }
         }
+
+        class Castling
+        {
+            [Test]
+            public void WhiteKingCanCastleRight()
+            {
+                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
+                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(7, 0));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.White;
+
+                Move move = new Move(king, new Vector2Int(6, 0));
+                Assert.IsTrue(move.IsLegal());
+            }
+
+            [Test]
+            public void WhiteKingCanCastleLeft()
+            {
+                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
+                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(0, 0));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.White;
+
+                Move move = new Move(king, new Vector2Int(2, 0));
+                Assert.IsTrue(move.IsLegal());
+            }
+
+            [Test]
+            public void BlackKingCanCastleRight()
+            {
+                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
+                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(7, 7));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.Black;
+                
+                Move move = new Move(king, new Vector2Int(6, 7));
+                Assert.IsTrue(move.IsLegal());
+            }
+        }
     }
 }
