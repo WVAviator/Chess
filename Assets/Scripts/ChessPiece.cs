@@ -17,7 +17,7 @@ namespace Chess
         public Vector2Int Position
         {
             get => _position;
-            private set
+            set
             {
                 _position = value;
                 if (!IsValidPosition(_position)) _position = Vector2Int.zero;
@@ -86,5 +86,7 @@ namespace Chess
             if (Board?.ChessPieces.FirstOrDefault(p => p.Position == position) != null) return true;
             return false;
         }
+        
+        public Move To(int x, int y) => new Move(this, new Vector2Int(x, y));
     }
 }

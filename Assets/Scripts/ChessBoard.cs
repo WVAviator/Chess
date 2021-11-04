@@ -20,6 +20,16 @@ namespace Chess
         public event Action<ChessPiece> OnPieceAdded;
         public event Action<ChessPiece> OnPieceRemoved;
 
+        public ChessPiece this[int x, int y]
+        {
+            get => GetPieceAt(new Vector2Int(x, y));
+            set
+            {
+                value.Position = new Vector2Int(x, y);
+                AddPiece(value);
+            }
+        }
+        
         public ChessBoard(params ChessPiece[] pieces)
         {
             _blackPieces = new List<ChessPiece>();

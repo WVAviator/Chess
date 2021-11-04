@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Chess
@@ -35,10 +36,18 @@ namespace Chess
             int x = Position.x + xDirection;
             while (x != rookPosition.x)
             {
-                if (AnyPieceInPosition(new Vector2Int(x, Position.y))) return true;
+                Vector2Int position = new Vector2Int(x, Position.y);
+                if (AnyPieceInPosition(position)) return true;
+                if (PutsInCheck(position)) return true;
                 x += xDirection;
             }
             return false;
+        }
+
+        bool PutsInCheck(Vector2Int position)
+        {
+            return Board.ChessPiecesByColor(Color.Opponent())
+                .Any(piece => piece.IsLegalMove(position));
         }
 
         int GetCorner(Move move) => move.XDirection == 1 ? 7 : 0;

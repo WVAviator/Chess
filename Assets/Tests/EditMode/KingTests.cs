@@ -7,6 +7,7 @@ namespace Tests.EditMode
 {
     public class KingTests
     {
+
         class Scenario1
         {
             King king;
@@ -98,6 +99,15 @@ namespace Tests.EditMode
 
         class Castling
         {
+
+            PieceFactory _black;
+            PieceFactory _white;
+            public Castling()
+            {
+                _black = new PieceFactory(ChessPieceColor.Black);
+                _white = new PieceFactory(ChessPieceColor.White);
+            }
+            
             [Test]
             public void WhiteKingCanCastleRight()
             {
@@ -132,6 +142,90 @@ namespace Tests.EditMode
                 
                 Move move = new Move(king, new Vector2Int(6, 7));
                 Assert.IsTrue(move.IsLegal());
+            }
+            
+            [Test]
+            public void BlackKingCanCastleLeft()
+            {
+                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
+                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(0, 7));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.Black;
+
+                Move move = new Move(king, new Vector2Int(2, 7));
+                Assert.IsTrue(move.IsLegal());
+            }
+
+            [Test]
+            public void CastlingNotAllowedIfPieceBlocking()
+            {
+                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
+                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(0, 7));
+                Bishop bishop = new Bishop(ChessPieceColor.Black, new Vector2Int(3, 7));
+                ChessBoard board = new ChessBoard(king, rook, bishop);
+                board.PlayerTurn = ChessPieceColor.Black;
+
+                Move move = new Move(king, new Vector2Int(2, 7));
+                Assert.IsFalse(move.IsLegal());
+            }
+
+            [Test]
+            public void RookAlsoMovesWithLegalCastleLeft()
+            {
+                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
+                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(0, 0));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.White;
+
+                Move move = new Move(king, new Vector2Int(2, 0));
+                move.Execute();
+                
+                Assert.IsTrue(rook.Position == new Vector2Int(3, 0));
+            }
+            
+            [Test]
+            public void RookAlsoMovesWithLegalCastleRight()
+            {
+                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
+                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(7, 0));
+                ChessBoard board = new ChessBoard(king, rook);
+                board.PlayerTurn = ChessPieceColor.White;
+
+                Move move = new Move(king, new Vector2Int(6, 0));
+                move.Execute();
+                
+                Debug.Log(rook.Position);
+                Assert.IsTrue(rook.Position == new Vector2Int(5, 0));
+            }
+
+            [Test]
+            public void WhiteCannotCastleThroughCheck()
+            {
+                ChessBoard board = new ChessBoard
+                {
+                    [4, 0] = _white.King,
+                    [7, 0] = _white.Rook,
+                    [5, 7] = _black.Queen
+                };
+
+                Move move = board[4, 0].To(6, 0);
+                Assert.IsFalse(move.IsLegal());
+            }
+
+            [Test]
+            public void BlackCannotCastleThroughCheck()
+            {
+                King king = _black.King;
+                ChessBoard board = new ChessBoard
+                {
+                    [4, 7] = king,
+                    [0, 7] = _black.Rook,
+                    [3, 0] = _white.Queen,
+                    PlayerTurn = ChessPieceColor.Black
+                };
+
+                Move move = king.To(2, 7);
+                Assert.IsFalse(move.IsLegal());
             }
         }
     }

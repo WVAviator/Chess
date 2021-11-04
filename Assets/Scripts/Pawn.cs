@@ -60,7 +60,6 @@ namespace Chess
         bool MoveForwardBy(int spaces, Move move) => move.YDifference == _movementDirection * spaces;
         bool MoveLaterallyBy(int spaces, Move move) => move.XDifference == -spaces || move.XDifference == spaces;
 
-        bool MoveDiagonallyByOne(Move move) => MoveForwardBy(1, move) && MoveLaterallyBy(1, move);
         bool FirstMove() => Position.y == _startingRow;
         bool AnyPieceBlocking() => AnyPieceInPosition(new Vector2Int(Position.x, Position.y + _movementDirection));
     }
