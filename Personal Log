@@ -33,3 +33,27 @@ working around some of unity's features in order to make my tests work. For exam
 
 I have also begun to realize that I need to apply my same level of design scrutiny to my tests as well as my code - my tests have been throwing some DRY flags in my 
 face but I've been ignoring them since they're just tests - but I think I should take some time to refactor my tests as well as my code.
+
+31OCT21
+
+I have to admit  cheated a little bit. Testing the input just seemed too difficult - so I just went ahead and added it. It works fine, since I mostly reused a lot of the 
+dragging code from my Solitaire project. The main difference being that the chess pieces themselves do not have colliders, rather the dragging code acts upon the board square
+which then gives a reference to the piece for moving. I am able to test this since it is triggered by the input through public methods. Essentially the test grabs and instantly
+moves the pieces, but that doesn't seem to be an issue in Unity's play testing. Regarding testing the input itself - I started looking into Mock objects and the sort, but decided
+that it wasn't worth the time considering I could still test the functionality itself. I also hooked up the front-end "Behaviours" to the backend pieces. Essentially, the
+player dragging and dropping pieces sends a request in the form of a Move object. The Move object, when executed, acts on the back end information, which then relays any
+changes to the front end via events. I also had to add a Dictionary in the front end ChessBoardBehaviour class that matches the backend pieces to the frontend pieces - this is
+primarily so that I can maintain a reference to a piece after it has been removed from the board, and can reactivate it if the move is undone. I would have hoped to control
+this behaviour from within the ChessPieceBehaviour class itself, but once you .SetActive(false) a GameObject, the script quits working (and quits listening for events).
+
+04NOV21
+
+I finally got around to adding code for En Passant and Castling type moves. After getting some feedback from Jason Storey who suggested my tests might be too verbose, I added a 
+ChessPieceFactory class that allows me to create new ChessPieces with significantly less code. I also added and indexer to the ChessBoard class that allows me to get and set
+pieces to positions in the board with less code as well. Based on some additional feedback mixed with some of my own ideas, I might actually just create a ChessBoardBuilder
+class using the builder pattern which will allow me to set up and test different scenarios with short, easy-to-read code. I can also refactor the .StandardSetup() method into
+the builder as well.
+
+I still have one more unique move type to handle - pawn promotion. I also need to write and test that en passant, castling, and pawn promotion can all be undone. Once I have
+that complete, I will refactor the code into something clean and neat, and then begin the AI code. i'll probably use any free time I have at work to research Minimax and Alpha 
+Beta in order to be ready for that code when the time comes.
