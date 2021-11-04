@@ -55,5 +55,5 @@ class using the builder pattern which will allow me to set up and test different
 the builder as well.
 
 I still have one more unique move type to handle - pawn promotion. I also need to write and test that en passant, castling, and pawn promotion can all be undone. Once I have
-that complete, I will refactor the code into something clean and neat, and then begin the AI code. i'll probably use any free time I have at work to research Minimax and Alpha 
+that complete, I will refactor the code into something clean and neat, and then begin the AI code. I'll probably use any free time I have at work to research Minimax and Alpha 
 Beta in order to be ready for that code when the time comes.
