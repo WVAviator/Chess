@@ -14,6 +14,8 @@ namespace Chess
 
         Dictionary<ChessPiece, ChessPieceBehaviour> _chessPieceDictionary;
 
+        public List<Square> Squares = new List<Square>();
+
         void Awake()
         {
             _chessBoard = new ChessBoard();
@@ -38,7 +40,7 @@ namespace Chess
             {
                 for (int x = 0; x < 8; x++)
                 {
-                    Instantiate(_squarePrefab, new Vector2(x, y), Quaternion.identity, transform);
+                    Squares.Add(Instantiate(_squarePrefab, new Vector2(x, y), Quaternion.identity, transform));
                 }
             }
         }

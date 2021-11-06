@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Chess
@@ -8,10 +10,19 @@ namespace Chess
         ChessPieceBehaviour _chessPieceBehaviour;
         Vector3 _targetPosition;
         bool _isDragging;
+        
+        ChessBoardBehaviour _chessBoardBehaviour;
 
         [SerializeField] float _moveSpeed = 10;
 
-        void Awake() => _chessPieceBehaviour = GetComponent<ChessPieceBehaviour>();
+        List<Move> _legalMoves;
+
+        void Awake()
+        {
+            _chessPieceBehaviour = GetComponent<ChessPieceBehaviour>();
+            _chessBoardBehaviour = FindObjectOfType<ChessBoardBehaviour>();
+        }
+
         void Start()
         {
             _chessPieceBehaviour.ChessPiece.OnPieceMoved += UpdateTargetPosition;
@@ -32,7 +43,19 @@ namespace Chess
             if (transform.position == _targetPosition || _isDragging) return;
             AnimateMovement();
         }
-        
+
+        void ShowAvailableMoves()
+        {
+            _legalMoves = _chessPieceBehaviour.ChessPiece.GetPossibleMoves();
+            foreach (Square s in _chessBoardBehaviour.Squares) s.ManageHighlighting(_legalMoves);
+        }
+
+        void HideAvailableMoves()
+        {
+            _legalMoves = new List<Move>();
+            foreach (Square s in _chessBoardBehaviour.Squares) s.ManageHighlighting(_legalMoves);
+        }
+
         void AnimateMovement()
         {
             transform.position =
@@ -60,6 +83,8 @@ namespace Chess
         public void Drag(Vector3 newPosition)
         {
             if (!_chessPieceBehaviour.ChessPiece.IsMyTurn()) return;
+
+            if (!_isDragging) ShowAvailableMoves();
             _isDragging = true;
             DragPieceTo(newPosition);
         }
@@ -67,6 +92,8 @@ namespace Chess
         public void Release(Vector2Int requestedPosition)
         {
             _isDragging = false;
+            HideAvailableMoves();
+
             if (!_chessPieceBehaviour.ChessPiece.IsMyTurn()) return;
             
 
