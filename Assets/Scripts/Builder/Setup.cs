@@ -14,6 +14,12 @@
             RandomAI ai = new RandomAI(color, _board);
             return this;
         }
+
+        public Setup WithOffensiveAI(ChessPieceColor color)
+        {
+            OffensiveAI ai = new OffensiveAI(color, _board);
+            return this;
+        }
         public Setup Standard()
         {
             AddPawns();

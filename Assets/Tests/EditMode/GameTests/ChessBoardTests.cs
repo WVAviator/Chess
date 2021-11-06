@@ -213,7 +213,7 @@ namespace Tests.EditMode
             }
             
             [Test]
-            public void KingEvaluatesToFifty()
+            public void KingEvaluatesToOneHundred()
             {
                 Setup.Board
                     .Place.White<King>().At(1, 1)

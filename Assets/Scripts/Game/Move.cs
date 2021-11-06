@@ -74,7 +74,7 @@ namespace Chess
         bool IsMyTurn() => Board.PlayerTurn == ChessPiece.Color;
         
 
-        public void Execute()
+        public void Execute(bool quiet = false)
         {
             if (!IsLegal())
             {
@@ -87,7 +87,7 @@ namespace Chess
 
             if (TargetOpponent != null) Board.RemovePiece(TargetOpponent);
             
-            Board.AddToMoveHistory(this);
+            if (!quiet) Board.AddToMoveHistory(this);
             
             if (IsPromotion)
             {
@@ -99,12 +99,12 @@ namespace Chess
             _isExecuted = true;
         }
 
-        public void Undo()
+        public void Undo(bool quiet = false)
         {
             if (!_isExecuted) return;
             _isExecuted = false;
             
-            if (Board.MoveHistory.Peek() != this)
+            if (!quiet && Board.MoveHistory.Peek() != this)
             {
                 Debug.LogError($"Attempted to undo moves out of order! Move {ChessPiece.GetType().Name} to {NewPosition} is not the most recent move.");
                 return;
@@ -112,7 +112,7 @@ namespace Chess
             ChessPiece.MoveTo(_oldPosition);
             if (_isCastle) _castleRook.MoveTo(_castleRookStartPosition);
             if (TargetOpponent != null) Board.AddPiece(TargetOpponent);
-            Board.RemoveFromMoveHistory();
+            if (!quiet) Board.RemoveFromMoveHistory();
 
             if (IsPromotion)
             {
