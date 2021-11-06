@@ -10,19 +10,15 @@ namespace Tests.EditMode
         class Scenario1
         {
 
-            Bishop bishop;
-            Pawn pawn1;
-            Pawn pawn2;
-            Pawn pawn3;
-            ChessBoard board;
+            ChessPiece bishop;
 
             public Scenario1()
             {
-                bishop = new Bishop(ChessPieceColor.White, new Vector2Int(5, 3));
-                pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(5, 5));
-                pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(3, 5));
-                pawn3 = new Pawn(ChessPieceColor.Black, new Vector2Int(3,1));
-                board = new ChessBoard(bishop, pawn1, pawn2, pawn3);
+                Setup.Board
+                    .Place.White<Bishop>().At(5, 3).AndGet(out bishop)
+                    .Place.Black<Pawn>().At(5, 5)
+                    .Place.White<Pawn>().At(3, 5)
+                    .Place.Black<Pawn>().At(3, 1);
             }
         
             [TestCase(6, 2, true)]
@@ -43,9 +39,8 @@ namespace Tests.EditMode
             [TestCase(8, 0, false)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(bishop, check);
+                Move move = bishop.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -60,17 +55,14 @@ namespace Tests.EditMode
         }
         class Scenario2
         {
-            Bishop bishop;
-            Pawn pawn1;
-            Pawn pawn2;
-            ChessBoard board;
+            ChessPiece bishop;
 
             public Scenario2()
             {
-                bishop = new Bishop(ChessPieceColor.White, new Vector2Int(2, 2));
-                pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(1, 3));
-                pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(5, 5));
-                board = new ChessBoard(bishop, pawn1, pawn2);
+                Setup.Board
+                    .Place.White<Bishop>().At(2, 2).AndGet(out bishop)
+                    .Place.Black<Pawn>().At(1, 3)
+                    .Place.White<Pawn>().At(5, 5);
             }
         
             [TestCase(2, 2, false)]
@@ -91,9 +83,8 @@ namespace Tests.EditMode
             [TestCase(3, 2, false)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(bishop, check);
+                Move move = bishop.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }

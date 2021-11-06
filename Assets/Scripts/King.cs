@@ -6,7 +6,11 @@ namespace Chess
 {
     public class King : ChessPiece
     {
-        public King(ChessPieceColor color, Vector2Int position = default) : base(color, position)
+        public King(ChessPieceColor color) : base(color, default)
+        {
+        }
+        
+        public King(ChessPieceColor color, Vector2Int position) : base(color, position)
         {
         }
 

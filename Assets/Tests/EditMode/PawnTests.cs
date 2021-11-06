@@ -9,16 +9,13 @@ namespace Tests.EditMode
     {
         class Scenario1
         {
-            Pawn pawn;
-            Pawn pawn2;
-            ChessBoard board;
+            ChessPiece _pawn;
 
             public Scenario1()
             {
-                pawn = new Pawn(ChessPieceColor.White, new Vector2Int(3, 1));
-                pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(4, 2));
-
-                board = new ChessBoard(pawn, pawn2);
+                Setup.Board
+                    .Place.White<Pawn>().At(3, 1).AndGet(out _pawn)
+                    .Place.Black<Pawn>().At(4, 2);
             }
 
             [TestCase(2, 2, false)]
@@ -32,9 +29,8 @@ namespace Tests.EditMode
             [TestCase(3, 3, true)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(pawn, check);
+                Move move = _pawn.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -42,26 +38,22 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = pawn.GetPossibleMoves();
+                List<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 3);
             }
         }
     
         class Scenario2
         {
-            Pawn pawn;
-            Pawn pawn1;
-            Pawn pawn2;
-            ChessBoard board;
+            ChessPiece _pawn;
 
             public Scenario2()
             {
-                pawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 6));
-                pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(3, 5));
-                pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(2, 5));
-
-                board = new ChessBoard(pawn, pawn1, pawn2);
-                board.PlayerTurn = ChessPieceColor.Black;
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<Pawn>().At(3, 6).AndGet(out _pawn)
+                    .Place.White<Pawn>().At(3, 5)
+                    .Place.White<Pawn>().At(2, 5);
             }
 
             [TestCase(3, 4, false)]
@@ -73,9 +65,8 @@ namespace Tests.EditMode
             [TestCase(2, 5, true)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(pawn, check);
+                Move move = _pawn.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -83,25 +74,21 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = pawn.GetPossibleMoves();
+                List<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 1);
             }
         }
         class Scenario3
         {
-            Pawn pawn;
-            Pawn pawn1;
-            Pawn pawn2;
-            ChessBoard board;
-
+            ChessPiece _pawn;
+            
             public Scenario3()
             {
-                pawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 5));
-                pawn1 = new Pawn(ChessPieceColor.Black, new Vector2Int(2, 4));
-                pawn2 = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
-
-                board = new ChessBoard(pawn, pawn1, pawn2);
-                board.PlayerTurn = ChessPieceColor.Black;
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<Pawn>().At(3, 5).AndGet(out _pawn)
+                    .Place.Black<Pawn>().At(2, 4)
+                    .Place.White<Pawn>().At(4, 4);
             }
 
             [TestCase(3, 3, false)]
@@ -112,9 +99,8 @@ namespace Tests.EditMode
             [TestCase(3, 4, true)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(pawn, check);
+                Move move = _pawn.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -122,24 +108,20 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = pawn.GetPossibleMoves();
+                List<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 2);
             }
         }
         class Scenario4
         {
-            Pawn pawn;
-            Knight knight;
-            King king;
-            ChessBoard board;
+            ChessPiece pawn;
 
             public Scenario4()
             {
-                pawn = new Pawn(ChessPieceColor.White, new Vector2Int(6, 1));
-                knight = new Knight(ChessPieceColor.Black, new Vector2Int(5, 2));
-                king = new King(ChessPieceColor.White, new Vector2Int(3, 1));
-
-                board = new ChessBoard(pawn, knight, king);
+                Setup.Board
+                    .Place.White<Pawn>().At(6, 1).AndGet(out pawn)
+                    .Place.Black<Knight>().At(5, 2)
+                    .Place.White<King>().At(3, 1);
             }
 
             [TestCase(5, 2, true)]
@@ -148,9 +130,8 @@ namespace Tests.EditMode
             [TestCase(7, 1, false)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(pawn, check);
+                Move move = pawn.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -168,33 +149,83 @@ namespace Tests.EditMode
             [Test]
             public void WhiteCanTakeBlackEnPassant()
             {
-                Pawn whitePawn = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
-                Pawn blackPawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 6));
-                ChessBoard chessBoard = new ChessBoard(whitePawn, blackPawn);
-                chessBoard.PlayerTurn = ChessPieceColor.Black;
-
-                Move blackMove = new Move(blackPawn, new Vector2Int(3, 4));
-                blackMove.Execute();
-
-                Move whiteMove = new Move(whitePawn, new Vector2Int(3, 5));
+                Setup.Board
+                    .Place.White<Pawn>().At(4, 4)
+                    .Place.Black<Pawn>().At(3, 6)
+                    .BlackGoesFirst
+                    .Move.From(3, 6).To(3, 4).Execute()
+                    .Move.From(4, 4).To(3, 5).AndGet(out Move move);
                 
-                Assert.IsTrue(whiteMove.IsLegal());
+                Assert.IsTrue(move.IsLegal());
             }
 
             [Test]
             public void BlackTakesWhiteEnPassant()
             {
-                Pawn whitePawn = new Pawn(ChessPieceColor.White, new Vector2Int(4, 1));
-                Pawn blackPawn = new Pawn(ChessPieceColor.Black, new Vector2Int(3, 3));
-                ChessBoard chessBoard = new ChessBoard(whitePawn, blackPawn);
-
-                Move whiteMove = new Move(whitePawn, new Vector2Int(4, 3));
-                whiteMove.Execute();
-
-                Move blackMove = new Move(blackPawn, new Vector2Int(4, 2));
-                blackMove.Execute();
+                Setup.Board
+                    .Place.White<Pawn>().At(4, 1).AndGet(out var pawn)
+                    .Place.Black<Pawn>().At(3, 3)
+                    .Move.From(4, 1).To(4, 3).Execute()
+                    .Move.From(3, 3).To(4, 2).Execute()
+                    .Get(out var board);
                 
-                Assert.IsFalse(chessBoard.ChessPieces.Contains(whitePawn));
+                Assert.IsFalse(board.ChessPieces.Contains(pawn));
+
+            }
+        }
+
+        class Promotion
+        {
+            [Test]
+            public void WhitePawnNoLongerExistsAtLastSquare()
+            {
+                Setup.Board
+                    .Place.White<Pawn>().At(0, 6).AndGet(out var pawn)
+                    .Move.From(0, 6).To(0, 7).Execute()
+                    .Get(out var board);
+
+                Assert.IsFalse(board.Contains(pawn));
+            }
+
+            [Test]
+            public void BlackPawnPromotionCanBeUndone()
+            {
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<Pawn>().At(0, 1).AndGet(out var pawn)
+                    .Move.From(0, 1).To(0, 0).Execute()
+                    .ThenUndo()
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[0, 1] == pawn);
+            }
+
+            [Test]
+            public void WhitePawnPromotesToRequestedQueen()
+            {
+                Setup.Board
+                    .Place.White<Pawn>().At(0, 6).AndGet(out var pawn)
+                    .Move.From(0, 6).To(0, 7).AndGet(out var move)
+                    .Get(out var board);
+
+                move.PromotionPiece = new Queen(pawn.Color);
+                move.Execute();
+                
+                Assert.IsTrue(board[0, 7] is Queen);
+            }
+
+            [Test]
+            public void BlackPawnPromotionUndoAlsoRemovesNewQueen()
+            {
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<Pawn>().At(0, 1).AndGet(out var pawn)
+                    .Move.From(0, 1).To(0, 0).Execute()
+                    .ThenUndo()
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[0, 1] == pawn);
+                Assert.IsTrue(board[0, 0] == null);
             }
         }
     }

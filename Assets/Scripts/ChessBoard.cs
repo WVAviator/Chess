@@ -29,6 +29,8 @@ namespace Chess
                 AddPiece(value);
             }
         }
+
+        public Builder ContinueSetup => new Setup(this);
         
         public ChessBoard(params ChessPiece[] pieces)
         {
@@ -39,6 +41,11 @@ namespace Chess
             PlayerTurn = ChessPieceColor.White;
             
             foreach (ChessPiece p in pieces) AddPiece(p);
+        }
+
+        public bool Contains(ChessPiece piece)
+        {
+            return ChessPieces.Contains(piece);
         }
 
         public List<ChessPiece> ChessPiecesByColor(ChessPieceColor color)
@@ -89,21 +96,21 @@ namespace Chess
 
         void SetupRoyalRow(int row, ChessPieceColor color)
         {
-            AddPiece(new Rook(color, new Vector2Int(0, row)));
-            AddPiece(new Knight(color, new Vector2Int(1, row)));
-            AddPiece(new Bishop(color, new Vector2Int(2, row)));
-            AddPiece(new Queen(color, new Vector2Int(3, row)));
-            AddPiece(new King(color, new Vector2Int(4, row)));
-            AddPiece(new Bishop(color, new Vector2Int(5, row)));
-            AddPiece(new Knight(color, new Vector2Int(6, row)));
-            AddPiece(new Rook(color, new Vector2Int(7, row)));
+            this[0, row] = new Rook(color);
+            this[7, row] = new Rook(color);
+            this[1, row] = new Knight(color);
+            this[6, row] = new Knight(color);
+            this[2, row] = new Bishop(color);
+            this[5, row] = new Bishop(color);
+            this[3, row] = new Queen(color);
+            this[4, row] = new King(color);
         }
 
         void SetupPawnRow(int row, ChessPieceColor color)
         {
             for (int i = 0; i < 8; i++)
             {
-                AddPiece(new Pawn(color, new Vector2Int(i, row)));
+                this[i, row] = new Pawn(color);
             }
         }
 

@@ -102,10 +102,11 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsTrueForWhiteWhenWhiteIsInCheck()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(5, 0));
-                Bishop bishop = new Bishop(ChessPieceColor.Black, new Vector2Int(7, 2));
-                ChessBoard board = new ChessBoard(king, bishop);
-
+                Setup.Board
+                    .Place.White<King>().At(5, 0)
+                    .Place.Black<Bishop>().At(7, 2)
+                    .Get(out var board);
+                
                 bool actual = board.IsInCheck(ChessPieceColor.White);
                 Assert.IsTrue(actual);
             }
@@ -113,9 +114,10 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsFalseForWhiteWhenWhiteIsNotInCheck()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(5, 0));
-                Bishop bishop = new Bishop(ChessPieceColor.Black, new Vector2Int(6, 2));
-                ChessBoard board = new ChessBoard(king, bishop);
+                Setup.Board
+                    .Place.White<King>().At(5, 0)
+                    .Place.Black<Bishop>().At(6, 2)
+                    .Get(out var board);
 
                 bool actual = board.IsInCheck(ChessPieceColor.White);
                 Assert.IsFalse(actual);
@@ -127,10 +129,9 @@ namespace Tests.EditMode
             [Test]
             public void WhiteCannotMoveWhenItsBlacksTurn()
             {
-                Pawn pawn = new Pawn(ChessPieceColor.White, new Vector2Int(1, 1));
-                ChessBoard board = new ChessBoard(pawn);
-
-                board.PlayerTurn = ChessPieceColor.Black;
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.White<Pawn>().At(1, 1).AndGet(out var pawn);
 
                 bool actual = pawn.GetPossibleMoves().Count == 0;
                 Assert.IsTrue(actual);
@@ -143,13 +144,12 @@ namespace Tests.EditMode
             [Test]
             public void CheckmateMoveRegistersAsCheckmate()
             {
-                Rook rook1 = new Rook(ChessPieceColor.White, new Vector2Int(1, 2));
-                Rook rook2 = new Rook(ChessPieceColor.White, new Vector2Int(0, 1));
-                King king = new King(ChessPieceColor.Black, new Vector2Int(5, 0));
-                ChessBoard board = new ChessBoard(rook1, rook2, king);
-
-                Move move = new Move(rook1, new Vector2Int(1, 0));
-                move.Execute();
+                Setup.Board
+                    .Place.White<Rook>().At(1, 2)
+                    .Place.White<Rook>().At(0, 1)
+                    .Place.Black<King>().At(5, 0)
+                    .Move.From(1, 2).To(1, 0).Execute()
+                    .Get(out var board);
                 
                 Assert.IsTrue(board.IsCheckmate(ChessPieceColor.Black));
             }

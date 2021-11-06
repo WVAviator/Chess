@@ -9,22 +9,16 @@ namespace Tests.EditMode
     {
         class Scenario1
         {
-            Queen queen;
-            Pawn pawn1;
-            Pawn pawn2;
-            Pawn pawn3;
-            Rook rook;
-            ChessBoard board;
+            ChessPiece queen;
 
             public Scenario1()
             {
-                queen = new Queen(ChessPieceColor.White, new Vector2Int(4, 1));
-                pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(2, 1));
-                pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(1, 4));
-                pawn3 = new Pawn(ChessPieceColor.Black, new Vector2Int(4, 6));
-                rook = new Rook(ChessPieceColor.White, new Vector2Int(4, 0));
-
-                board = new ChessBoard(queen, pawn1, pawn2, pawn3, rook);
+                Setup.Board
+                    .Place.White<Queen>().At(4, 1).AndGet(out queen)
+                    .Place.White<Pawn>().At(2, 1)
+                    .Place.Black<Pawn>().At(1, 4)
+                    .Place.Black<Pawn>().At(4, 6)
+                    .Place.White<Rook>().At(4, 0);
             }
 
             [TestCase(4, 0, false)]
@@ -42,9 +36,8 @@ namespace Tests.EditMode
             [TestCase(5, 0, true)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(queen, check);
+                Move move = queen.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -59,19 +52,15 @@ namespace Tests.EditMode
     
         class Scenario2
         {
-            Queen queen;
-            Pawn pawn;
-            Rook rook;
-            ChessBoard board;
+            ChessPiece queen;
 
             public Scenario2()
             {
-                queen = new Queen(ChessPieceColor.Black, new Vector2Int(0, 0));
-                pawn = new Pawn(ChessPieceColor.White, new Vector2Int(0, 5));
-                rook = new Rook(ChessPieceColor.White, new Vector2Int(7, 7));
-
-                board = new ChessBoard(queen, pawn, rook);
-                board.PlayerTurn = ChessPieceColor.Black;
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<Queen>().At(0, 0).AndGet(out queen)
+                    .Place.White<Pawn>().At(0, 5)
+                    .Place.White<Rook>().At(7, 7);
             }
 
             [TestCase(0, 6, false)]
@@ -89,9 +78,8 @@ namespace Tests.EditMode
             [TestCase(0, 4, true)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(queen, check);
+                Move move = queen.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }

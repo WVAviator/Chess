@@ -9,6 +9,10 @@ namespace Chess
         {
         }
         
+        public Bishop(ChessPieceColor color) : base(color, default)
+        {
+        }
+        
         public override string PieceName => "Bishop";
 
         public override bool IsLegalMove(Move move)

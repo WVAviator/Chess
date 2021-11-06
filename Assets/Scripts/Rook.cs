@@ -6,6 +6,10 @@ namespace Chess
     public class Rook : GlidingPiece
     {
         public override string PieceName => "Rook";
+
+        public Rook(ChessPieceColor color) : base(color, default)
+        {
+        }
         
         public Rook(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {

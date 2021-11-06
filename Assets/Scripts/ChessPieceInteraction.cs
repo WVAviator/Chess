@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Chess
 {
@@ -18,6 +19,12 @@ namespace Chess
             transform.position = _targetPosition;
         }
         
+        void OnEnable()
+        {
+            if (_chessPieceBehaviour.ChessPiece == null) return;
+            _chessPieceBehaviour.ChessPiece.OnPieceMoved += UpdateTargetPosition;
+        }
+
         void OnDisable() => _chessPieceBehaviour.ChessPiece.OnPieceMoved -= UpdateTargetPosition;
 
         void Update()
@@ -59,11 +66,17 @@ namespace Chess
 
         public void Release(Vector2Int requestedPosition)
         {
-            if (!_chessPieceBehaviour.ChessPiece.IsMyTurn()) return;
             _isDragging = false;
+            if (!_chessPieceBehaviour.ChessPiece.IsMyTurn()) return;
+            
 
             Move move = new Move(_chessPieceBehaviour.ChessPiece, requestedPosition);
             move.Execute();
+            
+            if (move.IsPromotion)
+            {
+                FindObjectOfType<PawnPromotionPopup>().Show(move);
+            }
         }
 
         public void Click()

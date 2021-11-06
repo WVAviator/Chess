@@ -10,18 +10,15 @@ namespace Tests.EditMode
 
         class Scenario1
         {
-            King king;
-            Pawn pawn1;
-            Pawn pawn2;
-            ChessBoard board;
+            ChessPiece king;
 
             public Scenario1()
             {
-                king = new King(ChessPieceColor.Black, new Vector2Int(4, 3));
-                pawn1 = new Pawn(ChessPieceColor.White, new Vector2Int(4, 4));
-                pawn2 = new Pawn(ChessPieceColor.Black, new Vector2Int(5, 3));
-                board = new ChessBoard(king, pawn1, pawn2);
-                board.PlayerTurn = ChessPieceColor.Black;
+                Setup.Board
+                    .BlackGoesFirst
+                    .Place.Black<King>().At(4, 3).AndGet(out king)
+                    .Place.White<Pawn>().At(4, 4)
+                    .Place.Black<Pawn>().At(5, 3);
             }
         
             [TestCase(3,3,true)]
@@ -39,9 +36,8 @@ namespace Tests.EditMode
             [TestCase(2,3,false)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(king, check);
+                Move move = king.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -56,17 +52,14 @@ namespace Tests.EditMode
     
         class Scenario2
         {
-            King king;
-            Pawn pawn;
-            Queen queen;
-            ChessBoard board;
+            ChessPiece king;
 
             public Scenario2()
             {
-                king = new King(ChessPieceColor.White, new Vector2Int(3, 2));
-                pawn = new Pawn(ChessPieceColor.White, new Vector2Int(3, 1));
-                queen = new Queen(ChessPieceColor.Black, new Vector2Int(5, 2));
-                board = new ChessBoard(king, pawn, queen);
+                Setup.Board
+                    .Place.White<King>().At(3, 2).AndGet(out king)
+                    .Place.White<Pawn>().At(3, 1)
+                    .Place.Black<Queen>().At(5, 2);
             }
         
             [TestCase(2,1,true)]
@@ -82,9 +75,8 @@ namespace Tests.EditMode
             [TestCase(3,2,false)]
             public void ReturnsCorrectMoveLegality(int xCheck, int yCheck, bool expected)
             {
-                Vector2Int check = new Vector2Int(xCheck, yCheck);
-
-                Move move = new Move(king, check);
+                Move move = king.To(xCheck, yCheck);
+                
                 bool actual = move.IsLegal();
                 Assert.AreEqual(expected, actual);
             }
@@ -99,133 +91,122 @@ namespace Tests.EditMode
 
         class Castling
         {
-
-            PieceFactory _black;
-            PieceFactory _white;
-            public Castling()
-            {
-                _black = new PieceFactory(ChessPieceColor.Black);
-                _white = new PieceFactory(ChessPieceColor.White);
-            }
-            
             [Test]
             public void WhiteKingCanCastleRight()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
-                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(7, 0));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.White;
-
-                Move move = new Move(king, new Vector2Int(6, 0));
+                Setup.Board
+                    .Place.White<King>().At(4, 0)
+                    .Place.White<Rook>().At(7, 0)
+                    .Move.From(4, 0).To(6, 0).AndGet(out Move move);
                 Assert.IsTrue(move.IsLegal());
             }
 
             [Test]
             public void WhiteKingCanCastleLeft()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
-                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(0, 0));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.White;
-
-                Move move = new Move(king, new Vector2Int(2, 0));
+                Setup.Board
+                    .Place.White<King>().At(4, 0)
+                    .Place.White<Rook>().At(0, 0)
+                    .Move.From(4, 0).To(2, 0).AndGet(out Move move);
                 Assert.IsTrue(move.IsLegal());
             }
 
             [Test]
             public void BlackKingCanCastleRight()
             {
-                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
-                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(7, 7));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.Black;
-                
-                Move move = new Move(king, new Vector2Int(6, 7));
+                Setup.Board
+                    .Place.Black<King>().At(4, 7)
+                    .Place.Black<Rook>().At(7, 7)
+                    .BlackGoesFirst
+                    .Move.From(4, 7).To(6, 7).AndGet(out Move move);
                 Assert.IsTrue(move.IsLegal());
             }
             
             [Test]
             public void BlackKingCanCastleLeft()
             {
-                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
-                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(0, 7));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.Black;
-
-                Move move = new Move(king, new Vector2Int(2, 7));
+                Setup.Board
+                    .Place.Black<King>().At(4, 7)
+                    .Place.Black<Rook>().At(0, 7)
+                    .BlackGoesFirst
+                    .Move.From(4, 7).To(2, 7).AndGet(out Move move);
                 Assert.IsTrue(move.IsLegal());
             }
 
             [Test]
             public void CastlingNotAllowedIfPieceBlocking()
             {
-                King king = new King(ChessPieceColor.Black, new Vector2Int(4, 7));
-                Rook rook = new Rook(ChessPieceColor.Black, new Vector2Int(0, 7));
-                Bishop bishop = new Bishop(ChessPieceColor.Black, new Vector2Int(3, 7));
-                ChessBoard board = new ChessBoard(king, rook, bishop);
-                board.PlayerTurn = ChessPieceColor.Black;
-
-                Move move = new Move(king, new Vector2Int(2, 7));
+                Setup.Board
+                    .Place.Black<King>().At(4, 7)
+                    .Place.Black<Rook>().At(0, 7)
+                    .Place.Black<Bishop>().At(3, 7)
+                    .BlackGoesFirst
+                    .Move.From(4, 7).To(2, 7).AndGet(out Move move);
+                
                 Assert.IsFalse(move.IsLegal());
             }
 
             [Test]
             public void RookAlsoMovesWithLegalCastleLeft()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
-                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(0, 0));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.White;
-
-                Move move = new Move(king, new Vector2Int(2, 0));
-                move.Execute();
+                Setup.Board
+                    .Place.White<King>().At(4, 0)
+                    .Place.White<Rook>().At(0, 0).AndGet(out ChessPiece rook)
+                    .Move.From(4, 0).To(2, 0).Execute()
+                    .Get(out ChessBoard board);
                 
-                Assert.IsTrue(rook.Position == new Vector2Int(3, 0));
+                Assert.IsTrue(board[3, 0] == rook);
             }
             
             [Test]
             public void RookAlsoMovesWithLegalCastleRight()
             {
-                King king = new King(ChessPieceColor.White, new Vector2Int(4, 0));
-                Rook rook = new Rook(ChessPieceColor.White, new Vector2Int(7, 0));
-                ChessBoard board = new ChessBoard(king, rook);
-                board.PlayerTurn = ChessPieceColor.White;
-
-                Move move = new Move(king, new Vector2Int(6, 0));
-                move.Execute();
+                Setup.Board
+                    .Place.White<King>().At(4, 0)
+                    .Place.White<Rook>().At(7, 0).AndGet(out ChessPiece rook)
+                    .Move.From(4, 0).To(6, 0).Execute()
+                    .Get(out ChessBoard board);
                 
-                Debug.Log(rook.Position);
-                Assert.IsTrue(rook.Position == new Vector2Int(5, 0));
+                Assert.IsTrue(board[5, 0] == rook);
             }
 
             [Test]
             public void WhiteCannotCastleThroughCheck()
             {
-                ChessBoard board = new ChessBoard
-                {
-                    [4, 0] = _white.King,
-                    [7, 0] = _white.Rook,
-                    [5, 7] = _black.Queen
-                };
-
-                Move move = board[4, 0].To(6, 0);
+                Setup.Board
+                    .Place.White<King>().At(4, 0)
+                    .Place.White<Rook>().At(7, 0)
+                    .Place.Black<Queen>().At(5, 7)
+                    .Move.From(4, 0).To(6, 0).AndGet(out Move move);
+                
+                Assert.IsFalse(move.IsLegal());
+            }
+            
+            [Test]
+            public void BlackCannotCastleThroughCheck()
+            {
+                Setup.Board
+                    .Place.Black<King>().At(4, 7)
+                    .Place.Black<Rook>().At(0, 7)
+                    .Place.White<Queen>().At(3, 0)
+                    .Move.From(4, 7).To(2, 7).AndGet(out Move move);
+                
                 Assert.IsFalse(move.IsLegal());
             }
 
             [Test]
-            public void BlackCannotCastleThroughCheck()
+            public void BlackCastleCanBeUndone()
             {
-                King king = _black.King;
-                ChessBoard board = new ChessBoard
-                {
-                    [4, 7] = king,
-                    [0, 7] = _black.Rook,
-                    [3, 0] = _white.Queen,
-                    PlayerTurn = ChessPieceColor.Black
-                };
+                Setup.Board
+                    .Place.Black<King>().At(4, 7).AndGet(out var king)
+                    .Place.Black<Rook>().At(0, 7).AndGet(out var rook)
+                    .BlackGoesFirst
+                    .Move.From(4, 7).To(2, 7).Execute()
+                    .ThenUndo()
+                    .Get(out ChessBoard board);
 
-                Move move = king.To(2, 7);
-                Assert.IsFalse(move.IsLegal());
+                Assert.IsTrue(board[4, 7] == king);
+                Assert.IsTrue(board[0, 7] == rook);
             }
         }
     }

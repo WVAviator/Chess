@@ -17,9 +17,9 @@ namespace Chess
         void Awake()
         {
             _chessBoard = new ChessBoard();
-            _chessBoard.SetupStandard();
+            
 
-            _chessBoard.OnPieceAdded += ReactivatePiece;
+            _chessBoard.OnPieceAdded += ActivatePiece;
             _chessBoard.OnPieceRemoved += DeactivatePiece;
             
             _chessPieceBehaviourPrefab = Resources.Load<ChessPieceBehaviour>("Prefabs/ChessPiece");
@@ -27,12 +27,7 @@ namespace Chess
             
             _chessPieceDictionary = new Dictionary<ChessPiece, ChessPieceBehaviour>();
             
-            foreach (ChessPiece piece in _chessBoard.ChessPieces)
-            {
-                ChessPieceBehaviour chessPieceBehaviour = Instantiate(_chessPieceBehaviourPrefab, transform);
-                chessPieceBehaviour.Initialize(piece);
-                _chessPieceDictionary[piece] = chessPieceBehaviour;
-            }
+            _chessBoard.SetupStandard();
 
             SetupSquares();
         }
@@ -53,9 +48,24 @@ namespace Chess
             _chessPieceDictionary[piece].gameObject.SetActive(false);
         }
 
-        void ReactivatePiece(ChessPiece piece)
+        void ActivatePiece(ChessPiece piece)
         {
-            _chessPieceDictionary[piece].gameObject.SetActive(true);
+            if (_chessPieceDictionary.ContainsKey(piece))
+            {
+                _chessPieceDictionary[piece].gameObject.SetActive(true);
+            }
+            else 
+            {
+                ChessPieceBehaviour chessPieceBehaviour = Instantiate(_chessPieceBehaviourPrefab, transform);
+                chessPieceBehaviour.Initialize(piece);
+                _chessPieceDictionary[piece] = chessPieceBehaviour;
+            }
         }
+
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space)) _chessBoard.MostRecentMove().Undo();
+        }
+
     }
 }

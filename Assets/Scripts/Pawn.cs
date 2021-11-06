@@ -15,8 +15,20 @@ namespace Chess
             _movementDirection = color == ChessPieceColor.Black ? -1 : 1;
         }
         
+        public Pawn(ChessPieceColor color) : base(color, default)
+        {
+            _startingRow = color == ChessPieceColor.Black ? 6 : 1;
+            _movementDirection = color == ChessPieceColor.Black ? -1 : 1;
+        }
+        
         public override bool IsLegalMove(Move moveToCheck)
         {
+            if (IsPromotionMove(moveToCheck) && CanMoveForward(moveToCheck))
+            {
+                moveToCheck.IsPromotion = true;
+                return true;
+            }
+            
             
             if (CanMoveForward(moveToCheck)) return true;
             if (CanTakeOpponentEnPassant(moveToCheck)) return true;
@@ -25,6 +37,8 @@ namespace Chess
             
             return false;
         }
+
+        bool IsPromotionMove(Move moveToCheck) => moveToCheck.NewPosition.y == _startingRow + _movementDirection * 6;
 
         bool CanTakeOpponentEnPassant(Move move)
         {

@@ -10,6 +10,10 @@ namespace Chess
         public Queen(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
         }
+        
+        public Queen(ChessPieceColor color) : base(color, default)
+        {
+        }
 
         public override bool IsLegalMove(Move move)
         {
