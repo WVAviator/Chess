@@ -15,6 +15,8 @@ namespace Chess
         {
         }
 
+        public override int GetScore() => 5;
+
         public override bool IsLegalMove(Move move)
         {
             if (move.NewPosition == Position) return false;

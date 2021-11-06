@@ -20,6 +20,7 @@ namespace Tests.PlayMode
         {
             
             Setup();
+            GetPiece();
         }
 
         void Setup()
@@ -27,6 +28,10 @@ namespace Tests.PlayMode
             if (_chessBoardGameObject != null) Object.Destroy(_chessBoardGameObject);
             _chessBoardGameObject = new GameObject();
             _chessBoardBehaviour = _chessBoardGameObject.AddComponent<ChessBoardBehaviour>();
+        }
+
+        void GetPiece()
+        {
             _chessPieceBehaviour = ChessPieceBehaviour.FindBy(new Vector2Int(1, 1));
             _chessPieceInteraction = _chessPieceBehaviour.GetComponent<ChessPieceInteraction>();
         }
@@ -59,6 +64,8 @@ namespace Tests.PlayMode
         public IEnumerator DragToValidSquareInitiatesMove()
         {
             Setup();
+            yield return null;
+            GetPiece();
             
             Vector3 newPosition = new Vector3(1.05f, 2.04f, 0);
             Vector2Int newPositionInt = new Vector2Int(1, 2);
@@ -74,6 +81,8 @@ namespace Tests.PlayMode
         public IEnumerator DragToOccupiedSquareTakesPiece()
         {
             Setup();
+            yield return null;
+            GetPiece();
             
             ChessPieceBehaviour opponentBehaviour = ChessPieceBehaviour.FindBy(new Vector2Int(2, 6));
             ChessPieceInteraction opponentInteraction = opponentBehaviour.GetComponent<ChessPieceInteraction>();
@@ -100,6 +109,8 @@ namespace Tests.PlayMode
         public IEnumerator UndoRestoresRemovedPiece()
         {
             Setup();
+            yield return null;
+            GetPiece();
             
             ChessPieceBehaviour opponentBehaviour = ChessPieceBehaviour.FindBy(new Vector2Int(2, 6));
             ChessPieceInteraction opponentInteraction = opponentBehaviour.GetComponent<ChessPieceInteraction>();

@@ -25,6 +25,8 @@ namespace Chess
         }
         Vector2Int _position;
 
+        public abstract int GetScore();
+
         public ChessPiece(ChessPieceColor color, Vector2Int position)
         {
             Color = color;

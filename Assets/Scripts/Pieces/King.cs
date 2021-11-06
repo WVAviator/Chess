@@ -16,6 +16,8 @@ namespace Chess
 
         public override string PieceName => "King";
 
+        public override int GetScore() => 100;
+
         public override bool IsLegalMove(Move move)
         {
             if (move.NewPosition == Position) return false;

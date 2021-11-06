@@ -19,6 +19,7 @@ namespace Chess
 
         public event Action<ChessPiece> OnPieceAdded;
         public event Action<ChessPiece> OnPieceRemoved;
+        public event Action<ChessPieceColor> OnNewPlayerTurn;
 
         public ChessPiece this[int x, int y]
         {
@@ -30,8 +31,6 @@ namespace Chess
             }
         }
 
-        public Builder ContinueSetup => new Setup(this);
-        
         public ChessBoard(params ChessPiece[] pieces)
         {
             _blackPieces = new List<ChessPiece>();
@@ -53,7 +52,11 @@ namespace Chess
             return color == ChessPieceColor.Black ? _blackPieces : _whitePieces;
         }
 
-        void NextPlayerTurn() => PlayerTurn = PlayerTurn.Opponent();
+        void NextPlayerTurn()
+        {
+            PlayerTurn = PlayerTurn.Opponent();
+            OnNewPlayerTurn?.Invoke(PlayerTurn);
+        }
 
         public bool IsInCheck(ChessPieceColor color)
         {
@@ -85,14 +88,10 @@ namespace Chess
         
         public Move MostRecentMove() => MoveHistory.Peek();
 
-        public void SetupStandard()
-        {
-            SetupRoyalRow(7, ChessPieceColor.Black);
-            SetupPawnRow(6, ChessPieceColor.Black);
+        public Setup Setup() => new Setup(this);
+        
             
-            SetupRoyalRow(0, ChessPieceColor.White);
-            SetupPawnRow(1, ChessPieceColor.White);
-        }
+        
 
         void SetupRoyalRow(int row, ChessPieceColor color)
         {
@@ -149,6 +148,17 @@ namespace Chess
         public bool HasMoved(ChessPiece piece)
         {
             return MoveHistory.Any(m => m.ChessPiece == piece);
+        }
+
+        public int EvaluateScore(ChessPieceColor color)
+        {
+            int score = 0;
+            foreach (ChessPiece piece in ChessPiecesByColor(color))
+            {
+                score += piece.GetScore();
+            }
+
+            return score;
         }
     }
 }

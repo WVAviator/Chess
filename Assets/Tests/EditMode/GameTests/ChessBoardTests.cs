@@ -15,7 +15,7 @@ namespace Tests.EditMode
             public void CorrectNumberOfPiecesInStandardSetup()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
             
                 Assert.IsTrue(board.ChessPieces.Count == 32);
             }
@@ -24,7 +24,7 @@ namespace Tests.EditMode
             public void CorrectNumberOfPawns()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
 
                 int pawnCount = board.ChessPieces.FindAll(p => p is Pawn).Count;
                 Assert.IsTrue(pawnCount == 16);
@@ -37,7 +37,7 @@ namespace Tests.EditMode
             public void AllPossibleMovesFromDefaultSetupCorrect()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
 
                 List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 Assert.IsTrue(allPossible.Count == 20);
@@ -46,7 +46,7 @@ namespace Tests.EditMode
             public void AllPossibleMovesAfterPawn3MovesCorrect()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
 
                 Vector2Int pawnPosition = new Vector2Int(3, 1);
                 Pawn pawn = (Pawn)board.GetPieceAt(pawnPosition);
@@ -65,7 +65,7 @@ namespace Tests.EditMode
             public void MoveStackReturnsCorrectCount()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
 
                 List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 allPossible[0].Execute();
@@ -80,7 +80,7 @@ namespace Tests.EditMode
             public void CannotUndoMovesOutOfOrder()
             {
                 ChessBoard board = new ChessBoard();
-                board.SetupStandard();
+                board.Setup().Standard();
 
                 List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 Move testMove = allPossible[0];
@@ -152,6 +152,86 @@ namespace Tests.EditMode
                     .Get(out var board);
                 
                 Assert.IsTrue(board.IsCheckmate(ChessPieceColor.Black));
+            }
+        }
+
+        class EvaluateScore
+        {
+            [Test]
+            public void PawnEvaluatesToOne()
+            {
+                Setup.Board
+                    .Place.White<Pawn>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 1);
+            }
+            
+            [Test]
+            public void RookEvaluatesToFive()
+            {
+                Setup.Board
+                    .Place.White<Rook>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 5);
+            }
+            
+            [Test]
+            public void BishopEvaluatesToThree()
+            {
+                Setup.Board
+                    .Place.White<Bishop>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 3);
+            }
+            
+            [Test]
+            public void KnightEvaluatesToThree()
+            {
+                Setup.Board
+                    .Place.White<Knight>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 3);
+            }
+            
+            [Test]
+            public void QueenEvaluatesToNine()
+            {
+                Setup.Board
+                    .Place.White<Queen>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 9);
+            }
+            
+            [Test]
+            public void KingEvaluatesToFifty()
+            {
+                Setup.Board
+                    .Place.White<King>().At(1, 1)
+                    .Get(out var board);
+                
+                int actual = board.EvaluateScore(ChessPieceColor.White);
+                Assert.IsTrue(actual == 100);
+            }
+            
+            [Test]
+            public void StandardSetupEvaluatesToCorrectValue()
+            {
+                Setup.Board.Standard()
+                    .Get(out var board);
+
+                int white = board.EvaluateScore(ChessPieceColor.White);
+                int black = board.EvaluateScore(ChessPieceColor.Black);
+                Assert.IsTrue(white == black && white == 139);
             }
         }
     }

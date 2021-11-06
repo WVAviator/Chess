@@ -20,7 +20,9 @@ namespace Chess
             _startingRow = color == ChessPieceColor.Black ? 6 : 1;
             _movementDirection = color == ChessPieceColor.Black ? -1 : 1;
         }
-        
+
+        public override int GetScore() => 1;
+
         public override bool IsLegalMove(Move moveToCheck)
         {
             if (IsPromotionMove(moveToCheck) && CanMoveForward(moveToCheck))

@@ -28,8 +28,8 @@ namespace Chess
             _squarePrefab = Resources.Load<Square>("Prefabs/Square");
             
             _chessPieceDictionary = new Dictionary<ChessPiece, ChessPieceBehaviour>();
-            
-            _chessBoard.SetupStandard();
+
+            _chessBoard.Setup().Standard().WithRandomAI(ChessPieceColor.Black);
 
             SetupSquares();
         }
