@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Chess
@@ -23,6 +24,40 @@ namespace Chess
             }
 
             return false;
+        }
+        
+        protected HashSet<Move> GetPotentialDiagonalMoves()
+        {
+            int x = Position.x;
+            int y = Position.y;
+            HashSet<Move> moves = new HashSet<Move>();
+            
+            for (int i = 1; i < 8; i++)
+            {
+                if (x + i < 8 && y + i < 8) moves.Add(To(x + i, y + i));
+                if (x - i >= 0 && y - i >= 0) moves.Add(To(x - i, y - i));
+                if (x + i < 8 && y - i >= 0) moves.Add(To(x + i, y - i));
+                if (x - i >= 0 && y + i < 8) moves.Add(To(x - i, y + i));
+            }
+
+            return moves;
+        }
+
+        protected HashSet<Move> GetPotentialVerticalHorizontalMoves()
+        {
+            int x = Position.x;
+            int y = Position.y;
+            HashSet<Move> moves = new HashSet<Move>();
+            
+            for (int i = 1; i < 8; i++)
+            {
+                if (x + i < 8) moves.Add(To(x + i, y));
+                if (x - i >= 0) moves.Add(To(x - i, y));
+                if (y + i < 8) moves.Add(To(x, y + i));
+                if (y - i >= 0) moves.Add(To(x, y - i));
+            }
+            
+            return moves;
         }
     }
 }

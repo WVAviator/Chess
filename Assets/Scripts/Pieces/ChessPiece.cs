@@ -9,6 +9,7 @@ namespace Chess
     public abstract class ChessPiece
     {
         public ChessPieceColor Color { get; }
+        public abstract char PieceChar { get; }
         
         public ChessBoard Board;
 
@@ -27,7 +28,7 @@ namespace Chess
 
         public abstract int GetScore();
 
-        public ChessPiece(ChessPieceColor color, Vector2Int position)
+        protected ChessPiece(ChessPieceColor color, Vector2Int position)
         {
             Color = color;
             Position = position;
@@ -55,40 +56,58 @@ namespace Chess
 
         public abstract bool IsLegalMove(Move move);
         
-        public List<Move> GetPossibleMoves()
+        public HashSet<Move> GetPossibleMoves()
         {
-            List<Move> moves = new List<Move>();
-
-            for (int y = 0; y < 8; y++)
+            HashSet<Move> legalMoves = new HashSet<Move>();
+            HashSet<Move> potentialMoves = GetPotentialMoves();
+            foreach (Move move in potentialMoves)
             {
-                for (int x = 0; x < 8; x++)
-                {
-                    Vector2Int possiblePosition = new Vector2Int(x, y);
-
-                    Move move = new Move(this, possiblePosition);
-
-                    if (move.IsLegal()) moves.Add(move);
-                }
+                if (move.IsLegal()) legalMoves.Add(move);
             }
-            return moves;
+            return legalMoves;
         }
 
-        protected bool OpponentInPosition(Vector2Int position)
-        {
-            if (Board?.ChessPiecesByColor(Color.Opponent()).FirstOrDefault(p => p. Position == position) != null) return true;
-            return false;
-        }
-        protected bool AllyInPosition(Vector2Int position)
-        {
-            if (Board?.ChessPiecesByColor(Color).FirstOrDefault(p => p.Position == position) != null) return true;
-            return false;
-        }
-        protected bool AnyPieceInPosition(Vector2Int position)
-        {
-            if (Board?.ChessPieces.FirstOrDefault(p => p.Position == position) != null) return true;
-            return false;
-        }
+        protected abstract HashSet<Move> GetPotentialMoves();
+
+        protected bool OpponentInPosition(Vector2Int position) => PieceInPosition(Color.Opponent(), position.x, position.y);
+        protected bool AllyInPosition(Vector2Int position) => PieceInPosition(Color, position.x, position.y);
+        protected bool AnyPieceInPosition(Vector2Int position) => Board?[position.x, position.y] != null;
+        bool PieceInPosition(ChessPieceColor color, int x, int y) => Board?[x, y]?.Color == color;
         
         public Move To(int x, int y) => new Move(this, new Vector2Int(x, y));
+
+        public static ChessPiece FromChar(char c)
+        {
+            switch (c)
+            {
+                case 'P':
+                    return new Pawn(ChessPieceColor.White);
+                case 'p':
+                    return new Pawn(ChessPieceColor.Black);
+                case 'R':
+                    return new Rook(ChessPieceColor.White);
+                case 'r':
+                    return new Rook(ChessPieceColor.Black);
+                case 'N':
+                    return new Knight(ChessPieceColor.White);
+                case 'n':
+                    return new Knight(ChessPieceColor.Black);
+                case 'B':
+                    return new Bishop(ChessPieceColor.White);
+                case 'b':
+                    return new Bishop(ChessPieceColor.Black);
+                case 'Q':
+                    return new Queen(ChessPieceColor.White);
+                case 'q':
+                    return new Queen(ChessPieceColor.Black);
+                case 'K':
+                    return new King(ChessPieceColor.White);
+                case 'k':
+                    return new King(ChessPieceColor.Black);
+                default:
+                    Debug.LogError($"Invalid piece character: \"{c}\"");
+                    return null;
+            }
+        }
     }
 }

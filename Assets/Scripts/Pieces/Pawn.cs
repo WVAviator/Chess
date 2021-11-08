@@ -9,6 +9,14 @@ namespace Chess
         int _movementDirection;
         
         public override string PieceName => "Pawn";
+        
+        public override char PieceChar
+        {
+            get
+            {
+                return Color == ChessPieceColor.Black ? 'p' : 'P';
+            }
+        }
         public Pawn(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
             _startingRow = color == ChessPieceColor.Black ? 6 : 1;
@@ -74,9 +82,29 @@ namespace Chess
             MoveForwardBy(1, move) && MoveLaterallyBy(0, move) && !AnyPieceBlocking();
 
         bool MoveForwardBy(int spaces, Move move) => move.YDifference == _movementDirection * spaces;
+
         bool MoveLaterallyBy(int spaces, Move move) => move.XDifference == -spaces || move.XDifference == spaces;
 
         bool FirstMove() => Position.y == _startingRow;
+
         bool AnyPieceBlocking() => AnyPieceInPosition(new Vector2Int(Position.x, Position.y + _movementDirection));
+
+        protected override HashSet<Move> GetPotentialMoves()
+        {
+            int x = Position.x;
+            int y = Position.y;
+            HashSet<Move> moves = new HashSet<Move>();
+
+            int forwardY = y + 1 * _movementDirection;
+            if (forwardY < 8 && forwardY >= 0)
+            {
+                moves.Add(To(x, forwardY));
+                if (x + 1 < 8) moves.Add(To(x + 1, forwardY));
+                if (x - 1 >= 0) moves.Add(To(x - 1, forwardY));
+            }
+            if (y == _startingRow) moves.Add(To(x, y + 2 * _movementDirection));
+
+            return moves;
+        }
     }
 }

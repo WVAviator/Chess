@@ -45,7 +45,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = king.GetPossibleMoves();
+                HashSet<Move> moves = king.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 7);
             }
         }
@@ -84,7 +84,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = king.GetPossibleMoves();
+                HashSet<Move> moves = king.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 3);
             }
         }

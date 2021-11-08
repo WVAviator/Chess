@@ -23,6 +23,12 @@
                 return this;
             }
         }
+        
+        public Builder StartGame()
+        {
+            _board.GameStart();
+            return this;
+        }
 
     }
 }

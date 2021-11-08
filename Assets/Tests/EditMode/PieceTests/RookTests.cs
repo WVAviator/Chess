@@ -43,7 +43,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = rook.GetPossibleMoves();
+                HashSet<Move> moves = rook.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 8);
             }
         }
@@ -86,7 +86,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = rook.GetPossibleMoves();
+                HashSet<Move> moves = rook.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 10);
             }
         }

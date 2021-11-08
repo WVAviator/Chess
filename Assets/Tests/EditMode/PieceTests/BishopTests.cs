@@ -48,7 +48,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = bishop.GetPossibleMoves();
+                HashSet<Move> moves = bishop.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 7);
             }
         
@@ -92,7 +92,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = bishop.GetPossibleMoves();
+                HashSet<Move> moves = bishop.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 7);
             }
         }

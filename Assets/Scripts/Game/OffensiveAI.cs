@@ -13,7 +13,7 @@ namespace Chess
         {
             if (color != _color) return;
 
-            List<Move> possibleMoves = _board.AllPossibleMoves(_color);
+            HashSet<Move> possibleMoves = _board.AllPossibleMoves(_color);
             if (possibleMoves.Count == 0) return;
             
             List<Move> bestMoves = new List<Move>();

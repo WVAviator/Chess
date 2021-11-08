@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chess
@@ -14,12 +15,12 @@ namespace Chess
         {
             if (color != _color) return;
             
-            List<Move> possibleMoves = _board.AllPossibleMoves(_color);
+            HashSet<Move> possibleMoves = _board.AllPossibleMoves(_color);
 
             if (possibleMoves.Count == 0) return;
             
             int randomIndex = Random.Range(0, possibleMoves.Count);
-            Move move = possibleMoves[randomIndex];
+            Move move = possibleMoves.ElementAt(randomIndex);
             ExecuteMove(move);
         }
     }

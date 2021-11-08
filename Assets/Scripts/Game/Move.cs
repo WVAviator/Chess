@@ -60,12 +60,12 @@ namespace Chess
             XDifference = _newPosition.x - _oldPosition.x;
             YDirection = Math.Sign(YDifference);
             XDirection = Math.Sign(XDifference);
-            
-            TargetOpponent = Board?
-                .ChessPiecesByColor(ChessPiece.Color.Opponent())
-                .FirstOrDefault(p => p.Position == NewPosition);
+
+            TargetOpponent = Board?[NewPosition.x, NewPosition.y];
+            if (TargetOpponent?.Color == ChessPiece.Color) TargetOpponent = null;
         }
 
+        public int Score => TargetOpponent?.GetScore() ?? 0;
         public bool IsLegal()
         {
             return !PutsKingInCheck() && ChessPiece.IsLegalMove(this) && IsMyTurn();
@@ -95,6 +95,8 @@ namespace Chess
                 PromotionPiece.Position = NewPosition;
                 Board.AddPiece(PromotionPiece);
             }
+
+            if (quiet) Board.PlayerTurn = Board.PlayerTurn.Opponent();
             
             _isExecuted = true;
         }
@@ -119,6 +121,8 @@ namespace Chess
                 Board.AddPiece(ChessPiece);
                 Board.RemovePiece(PromotionPiece);
             }
+            
+            if (quiet) Board.PlayerTurn = Board.PlayerTurn.Opponent();
         }
         
         static bool IsValidPosition(Vector2Int potentialPosition)
@@ -130,7 +134,7 @@ namespace Chess
 
         bool PutsKingInCheck()
         {
-            King king = (King)Board.ChessPieces.Find(p => p is King && p.Color == ChessPiece.Color);
+            King king = FindKing();
             if (king == null) return false;
             
             bool inCheck = false;
@@ -150,11 +154,27 @@ namespace Chess
             return inCheck;
         }
 
+        King FindKing()
+        {
+            King king = null;
+            foreach (ChessPiece piece in Board.ChessPiecesByColor(ChessPiece.Color))
+            {
+                if (piece is King)
+                {
+                    king = (King) piece;
+                    break;
+                }
+            }
+            return king;
+        }
+
         public void IsCastle(Rook rook)
         {
             _isCastle = true;
             _castleRook = rook;
             _castleRookStartPosition = rook.Position;
         }
+
+        public override string ToString() => ChessPiece.Color + " " + ChessPiece.GetType().Name + " to " + NewPosition;
     }
 }

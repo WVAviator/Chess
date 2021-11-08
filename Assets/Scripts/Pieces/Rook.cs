@@ -6,6 +6,13 @@ namespace Chess
     public class Rook : GlidingPiece
     {
         public override string PieceName => "Rook";
+        public override char PieceChar
+        {
+            get
+            {
+                return Color == ChessPieceColor.Black ? 'r' : 'R';
+            }
+        }
 
         public Rook(ChessPieceColor color) : base(color, default)
         {
@@ -26,5 +33,7 @@ namespace Chess
 
             return true;
         }
+
+        protected override HashSet<Move> GetPotentialMoves() => GetPotentialVerticalHorizontalMoves();
     }
 }

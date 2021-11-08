@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Chess
@@ -6,6 +8,13 @@ namespace Chess
     public class Queen : GlidingPiece
     {
         
+        public override char PieceChar
+        {
+            get
+            {
+                return Color == ChessPieceColor.Black ? 'q' : 'Q';
+            }
+        }
         public override string PieceName => "Queen";
         public Queen(ChessPieceColor color, Vector2Int position = default) : base(color, position)
         {
@@ -25,6 +34,14 @@ namespace Chess
             if (AllyInPosition(move.NewPosition)) return false;
             
             return true;
+        }
+
+        protected override HashSet<Move> GetPotentialMoves()
+        {
+            HashSet<Move> moves = new HashSet<Move>();
+            moves.UnionWith(GetPotentialDiagonalMoves());
+            moves.UnionWith(GetPotentialVerticalHorizontalMoves());
+            return moves;
         }
     }
 }

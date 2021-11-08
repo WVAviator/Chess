@@ -11,8 +11,8 @@ namespace Chess
 
         public ChessPieceColor PlayerTurn;
 
-        List<ChessPiece> _blackPieces;
-        List<ChessPiece> _whitePieces;
+        HashSet<ChessPiece> _blackPieces;
+        HashSet<ChessPiece> _whitePieces;
 
         public Stack<Move> MoveHistory => _moveHistory;
         Stack<Move> _moveHistory;
@@ -33,21 +33,23 @@ namespace Chess
 
         public ChessBoard(params ChessPiece[] pieces)
         {
-            _blackPieces = new List<ChessPiece>();
-            _whitePieces = new List<ChessPiece>();
+            _blackPieces = new HashSet<ChessPiece>();
+            _whitePieces = new HashSet<ChessPiece>();
             _moveHistory = new Stack<Move>();
 
             PlayerTurn = ChessPieceColor.White;
             
             foreach (ChessPiece p in pieces) AddPiece(p);
         }
+        
+        public void GameStart() => OnNewPlayerTurn?.Invoke(PlayerTurn);
 
         public bool Contains(ChessPiece piece)
         {
             return ChessPieces.Contains(piece);
         }
 
-        public List<ChessPiece> ChessPiecesByColor(ChessPieceColor color)
+        public HashSet<ChessPiece> ChessPiecesByColor(ChessPieceColor color)
         {
             return color == ChessPieceColor.Black ? _blackPieces : _whitePieces;
         }
@@ -89,37 +91,16 @@ namespace Chess
         public Move MostRecentMove() => MoveHistory.Peek();
 
         public Setup Setup() => new Setup(this);
-        
-            
-        
 
-        void SetupRoyalRow(int row, ChessPieceColor color)
+        public HashSet<Move> AllPossibleMoves(ChessPieceColor color)
         {
-            this[0, row] = new Rook(color);
-            this[7, row] = new Rook(color);
-            this[1, row] = new Knight(color);
-            this[6, row] = new Knight(color);
-            this[2, row] = new Bishop(color);
-            this[5, row] = new Bishop(color);
-            this[3, row] = new Queen(color);
-            this[4, row] = new King(color);
-        }
-
-        void SetupPawnRow(int row, ChessPieceColor color)
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                this[i, row] = new Pawn(color);
-            }
-        }
-
-        public List<Move> AllPossibleMoves(ChessPieceColor color)
-        {
-            List<Move> moves = new List<Move>();
+            HashSet<Move> moves = new HashSet<Move>();
             foreach (ChessPiece piece in ChessPiecesByColor(color))
             {
-                moves.AddRange(piece.GetPossibleMoves());
+                moves.UnionWith(piece.GetPossibleMoves());
             }
+
+            //moves.OrderByDescending(m => m.Score);
 
             return moves;
         }
@@ -142,7 +123,11 @@ namespace Chess
 
         public ChessPiece GetPieceAt(Vector2Int position)
         {
-            return ChessPieces.FirstOrDefault(p => p.Position == position);
+            foreach (ChessPiece piece in ChessPieces)
+            {
+                if (piece.Position == position) return piece;
+            }
+            return null;
         }
 
         public bool HasMoved(ChessPiece piece)
@@ -159,6 +144,20 @@ namespace Chess
             }
 
             return score;
+        }
+
+        public string ConvertToBoardString()
+        {
+            string boardString = "";
+            for (int y = 7; y >= 0; y--)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    boardString += this[x, y]?.PieceChar.ToString() ?? "-";
+                }
+            }
+
+            return boardString;
         }
     }
 }

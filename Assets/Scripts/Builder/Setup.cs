@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using UnityEngine;
+
+namespace Chess
 {
     public class Setup : Builder
     {
@@ -20,6 +22,33 @@
             OffensiveAI ai = new OffensiveAI(color, _board);
             return this;
         }
+
+        public Setup WithMinimaxAI(ChessPieceColor color, int depth)
+        {
+            MinimaxAI ai = new MinimaxAI(color, _board, depth);
+            return this;
+        }
+
+        public Setup WithString(string textBoard)
+        {
+            textBoard = textBoard.Replace("\n", "").Replace("\r", "");
+            
+            if (textBoard.Length != 64) Debug.LogError($"Invalid board string - requires 64, has {textBoard.Length}");
+            for (int i = 0; i < textBoard.Length; i++)
+            {
+                char c = textBoard[i];
+                if (c == '-') continue;
+                
+                int x = i % 8;
+                int y = 7 - i / 8;
+                
+                ChessPiece piece = ChessPiece.FromChar(c);
+                _board[x, y] = piece;
+            }
+
+            return this;
+        }
+        
         public Setup Standard()
         {
             AddPawns();

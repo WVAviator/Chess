@@ -52,7 +52,7 @@ namespace Chess
             return pieceInteraction;
         }
 
-        public void ManageHighlighting(List<Move> legalMoves)
+        public void ManageHighlighting(HashSet<Move> legalMoves)
         {
             Highlight(legalMoves.Any(m => m.NewPosition == Position));
         }

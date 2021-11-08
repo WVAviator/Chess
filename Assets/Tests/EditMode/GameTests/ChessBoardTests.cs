@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Chess;
 using NUnit.Framework;
@@ -39,7 +40,7 @@ namespace Tests.EditMode
                 ChessBoard board = new ChessBoard();
                 board.Setup().Standard();
 
-                List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
+                HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 Assert.IsTrue(allPossible.Count == 20);
             }
             [Test]
@@ -54,7 +55,7 @@ namespace Tests.EditMode
                 Vector2Int newPosition = new Vector2Int(3, 3);
                 pawn.MoveTo(newPosition);
 
-                List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
+                HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 Assert.IsTrue(allPossible.Count == 28);
             }
         }
@@ -67,10 +68,10 @@ namespace Tests.EditMode
                 ChessBoard board = new ChessBoard();
                 board.Setup().Standard();
 
-                List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
-                allPossible[0].Execute();
+                HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
+                allPossible.ElementAt(0).Execute();
                 allPossible = board.AllPossibleMoves(ChessPieceColor.Black);
-                allPossible[0].Execute();
+                allPossible.ElementAt(0).Execute();
 
                 int actual = board.MoveHistory.Count;
                 Assert.IsTrue(actual == 2);
@@ -82,12 +83,12 @@ namespace Tests.EditMode
                 ChessBoard board = new ChessBoard();
                 board.Setup().Standard();
 
-                List<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
-                Move testMove = allPossible[0];
+                HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
+                Move testMove = allPossible.ElementAt(0);
                 testMove.Execute();
             
                 allPossible = board.AllPossibleMoves(ChessPieceColor.Black);
-                allPossible[0].Execute();
+                allPossible.ElementAt(0).Execute();
             
                 testMove.Undo();
                 LogAssert.Expect(LogType.Error, new Regex(@".*"));
@@ -233,6 +234,155 @@ namespace Tests.EditMode
                 int black = board.EvaluateScore(ChessPieceColor.Black);
                 Assert.IsTrue(white == black && white == 139);
             }
+        }
+
+        class SetupFromTextString
+        {
+            [Test]
+            public void KnightsAppearInCorrectPositions()
+            {
+                string testString =
+                    "--------" +
+                    "--n-----" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "------N-" +
+                    "--------" +
+                    "--------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[6, 2] is Knight && board[6, 2].Color == ChessPieceColor.White);
+                Assert.IsTrue(board[2, 6] is Knight && board[2, 6].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+            
+            [Test]
+            public void BishopsAppearInCorrectPositions()
+            {
+                string testString =
+                    "-------B" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "b-------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[0, 0] is Bishop && board[0, 0].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board[7, 7] is Bishop && board[7, 7].Color == ChessPieceColor.White);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+            
+            [Test]
+            public void RooksAppearInCorrectPositions()
+            {
+                string testString =
+                    "--------" +
+                    "--r-----" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--R-----" +
+                    "--------" +
+                    "--------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[2, 6] is Rook && board[2, 6].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board[2, 2] is Rook && board[2, 2].Color == ChessPieceColor.White);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+            
+            [Test]
+            public void QueensAppearInCorrectPositions()
+            {
+                string testString =
+                    "--------" +
+                    "--------" +
+                    "---Q----" +
+                    "--------" +
+                    "---q----" +
+                    "--------" +
+                    "--------" +
+                    "--------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[3, 3] is Queen && board[3, 3].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board[3, 5] is Queen && board[3, 5].Color == ChessPieceColor.White);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+            
+            [Test]
+            public void KingsAppearInCorrectPositions()
+            {
+                string testString =
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "-------K" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "k-------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[7, 4] is King && board[7, 4].Color == ChessPieceColor.White);
+                Assert.IsTrue(board[0, 0] is King && board[0, 0].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+            
+            [Test]
+            public void PawnsAppearInCorrectPositions()
+            {
+                string testString =
+                    "------P-" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "--------" +
+                    "p-------" +
+                    "--------";
+                
+                Setup.Board.WithString(testString)
+                    .Get(out var board);
+                
+                Assert.IsTrue(board[0, 1] is Pawn && board[0, 1].Color == ChessPieceColor.Black);
+                Assert.IsTrue(board[6, 7] is Pawn && board[6, 7].Color == ChessPieceColor.White);
+                Assert.IsTrue(board.ChessPieces.Count == 2);
+            }
+
+            [Test]
+            public void BoardStringInIsSameAsBoardStringOut()
+            {
+                string input =
+                    "-K----P-" +
+                    "--------" +
+                    "---q----" +
+                    "-----n--" +
+                    "-k------" +
+                    "--------" +
+                    "p----Q--" +
+                    "--B-----";
+                Setup.Board.WithString(input)
+                    .Get(out var board);
+                
+                string output = board.ConvertToBoardString();
+                Assert.AreEqual(input, output);
+            }
+            
         }
     }
 }

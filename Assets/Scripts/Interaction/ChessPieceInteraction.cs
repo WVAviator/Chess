@@ -15,7 +15,7 @@ namespace Chess
 
         [SerializeField] float _moveSpeed = 10;
 
-        List<Move> _legalMoves;
+        HashSet<Move> _legalMoves;
 
         void Awake()
         {
@@ -52,7 +52,7 @@ namespace Chess
 
         void HideAvailableMoves()
         {
-            _legalMoves = new List<Move>();
+            _legalMoves = new HashSet<Move>();
             foreach (Square s in _chessBoardBehaviour.Squares) s.ManageHighlighting(_legalMoves);
         }
 

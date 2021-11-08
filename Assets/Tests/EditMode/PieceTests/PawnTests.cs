@@ -38,7 +38,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = _pawn.GetPossibleMoves();
+                HashSet<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 3);
             }
         }
@@ -74,7 +74,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = _pawn.GetPossibleMoves();
+                HashSet<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 1);
             }
         }
@@ -108,7 +108,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = _pawn.GetPossibleMoves();
+                HashSet<Move> moves = _pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 2);
             }
         }
@@ -139,7 +139,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsCorrectNumberOfPossibleMoves()
             {
-                List<Move> moves = pawn.GetPossibleMoves();
+                HashSet<Move> moves = pawn.GetPossibleMoves();
                 Assert.IsTrue(moves.Count == 1);
             }
         }

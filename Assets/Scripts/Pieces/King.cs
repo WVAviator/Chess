@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -13,6 +14,14 @@ namespace Chess
         public King(ChessPieceColor color, Vector2Int position) : base(color, position)
         {
         }
+        
+        public override char PieceChar
+        {
+            get
+            {
+                return Color == ChessPieceColor.Black ? 'k' : 'K';
+            }
+        }
 
         public override string PieceName => "King";
 
@@ -23,6 +32,30 @@ namespace Chess
             if (move.NewPosition == Position) return false;
             if (AllyInPosition(move.NewPosition)) return false;
             return IsCastle(move) || OneSpace(move);
+        }
+
+        protected override HashSet<Move> GetPotentialMoves()
+        {
+            int x = Position.x;
+            int y = Position.y;
+            HashSet<Move> moves = new HashSet<Move>();
+
+            if (x + 1 < 8)
+            {
+                if (y + 1 < 8) moves.Add(To(x+1, y+1));
+                if (y - 1 >= 0) moves.Add(To(x+1, y-1));
+                moves.Add(To(x+1, y));
+            }
+            if (x - 1 >= 0)
+            {
+                if (y + 1 < 8) moves.Add(To(x-1, y+1));
+                if (y - 1 >= 0) moves.Add(To(x-1, y-1));
+                moves.Add(To(x-1, y));
+            }
+            if (y + 1 < 8) moves.Add(To(x, y+1));
+            if (y - 1 >= 0) moves.Add(To(x, y-1));
+            
+            return moves;
         }
 
         bool IsCastle(Move move)
