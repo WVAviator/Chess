@@ -56,8 +56,9 @@ namespace Chess
 
         public virtual bool IsLegalMove(Vector2Int newPosition)
         {
-            //return IsMyTurn() && IsValidPosition(newPosition) && !AllyInPosition(newPosition);
-            return IsMyTurn() && PotentialPositions.Contains(newPosition) && !PutsKingInCheck(newPosition);
+            return IsValidPosition(newPosition) &&
+                   newPosition != Position &&
+                   !AllyInPosition(newPosition);
         }
 
         public bool IsMyTurn() => Board.PlayerTurn == Color;
@@ -65,10 +66,11 @@ namespace Chess
         public HashSet<Move> GetPossibleMoves()
         {
             HashSet<Move> legalMoves = new HashSet<Move>();
-            List<Vector2Int> potentialMoves = PotentialPositions;
-            foreach (Vector2Int pos in potentialMoves)
+            if (!IsMyTurn()) return legalMoves;
+            
+            foreach (Vector2Int pos in PotentialPositions)
             {
-                if (IsLegalMove(pos)) legalMoves.Add(new Move(this, pos, true));
+                if (!PutsKingInCheck(pos)) legalMoves.Add(new Move(this, pos, true));
             }
             return legalMoves;
         }
@@ -136,7 +138,7 @@ namespace Chess
 
             if (checkForCheck) return false;
             checkForCheck = true;
-            
+
             Vector2Int oldPosition = Position;
             
             bool inCheck = false;
@@ -149,14 +151,12 @@ namespace Chess
 
             foreach (ChessPiece piece in Board.ChessPiecesByColor(Color.Opponent()))
             {
-                piece.ClearPotentialPositions();
                 if (piece.IsLegalMove(king.Position)) inCheck = true;
             }
             
             Board.PlayerTurn = Board.PlayerTurn.Opponent();
             MoveTo(oldPosition);
             if (targetOpponent != null) Board.AddPiece(targetOpponent);
-            
 
             checkForCheck = false;
             return inCheck;

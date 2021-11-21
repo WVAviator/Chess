@@ -29,6 +29,12 @@ namespace Chess
             MinimaxAI ai = new MinimaxAI(color, _board, depth);
             return this;
         }
+        
+        public BoardBuilder SetCastle(string castle)
+        {
+            _board.SetCastling(castle);
+            return this;
+        }
 
         public BoardBuilder WithString(string textBoard)
         {

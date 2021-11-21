@@ -11,13 +11,16 @@ namespace Chess
         public Rook(ChessPieceColor color) : base(color, default)
         {
         }
-        
-        public Rook(ChessPieceColor color, Vector2Int position = default) : base(color, position)
-        {
-        }
-
         public override int GetScore() => 5;
 
         protected override List<Vector2Int> GetPotentialPositions() => GetPotentialVerticalHorizontalPositions();
+        
+        public override bool IsLegalMove(Vector2Int newPosition)
+        {
+            return base.IsLegalMove(newPosition) 
+                   && VerticalOrHorizontal(newPosition) 
+                   && !Blocked(newPosition) 
+                   && !PutsKingInCheck(newPosition);
+        }
     }
 }

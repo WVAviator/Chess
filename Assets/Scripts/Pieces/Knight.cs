@@ -8,17 +8,7 @@ namespace Chess
     {
         public override string PieceName => "Knight";
         
-        public override char PieceChar
-        {
-            get
-            {
-                return Color == ChessPieceColor.Black ? 'n' : 'N';
-            }
-        }
-
-        public Knight(ChessPieceColor color, Vector2Int position = default) : base(color, position)
-        {
-        }
+        public override char PieceChar => Color == ChessPieceColor.Black ? 'n' : 'N';
 
         public Knight(ChessPieceColor color) : base(color, default)
         {
@@ -43,14 +33,21 @@ namespace Chess
 
             return positions;
         }
-
-        bool IsLShaped(Vector2Int movePosition)
+        
+        public override bool IsLegalMove(Vector2Int newPosition)
         {
-            int xDifference = Math.Abs(movePosition.x - Position.x);
-            int yDifference = Math.Abs(movePosition.y - Position.y);
-            
-            return (xDifference == 2 && yDifference == 1) ||
-                   (xDifference == 1 && yDifference == 2);
+            return base.IsLegalMove(newPosition) 
+                   && IsLShaped(newPosition) 
+                   && !PutsKingInCheck(newPosition);
+        }
+
+        bool IsLShaped(Vector2Int newPosition)
+        {
+            int xDifference = Math.Abs(newPosition.x - Position.x);
+            int yDifference = Math.Abs(newPosition.y - Position.y);
+
+            return xDifference == 2 && yDifference == 1
+                   || xDifference == 1 && yDifference == 2;
         }
     }
 }

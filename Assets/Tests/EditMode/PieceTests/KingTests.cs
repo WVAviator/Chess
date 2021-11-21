@@ -15,6 +15,7 @@ namespace Tests.EditMode
             public Scenario1()
             {
                 BoardBuilder.BuildBoard
+                    .SetCastle("-")
                     .BlackGoesFirst
                     .Place.Black<King>().At(4, 3).AndGet(out king)
                     .Place.White<Pawn>().At(4, 4)
@@ -57,18 +58,19 @@ namespace Tests.EditMode
             public Scenario2()
             {
                 BoardBuilder.BuildBoard
+                    .SetCastle("-")
                     .Place.White<King>().At(3, 2).AndGet(out king)
                     .Place.White<Pawn>().At(3, 1)
                     .Place.Black<Queen>().At(5, 2);
             }
         
             [TestCase(2,1,true)]
-            [TestCase(2,2,false)]
+            [TestCase(2,2,false)] //b
             [TestCase(2,3,true)]
             [TestCase(3,3,true)]
-            [TestCase(4,3,false)]
-            [TestCase(4,2,false)]
-            [TestCase(4,1,false)]
+            [TestCase(4,3,false)] //b
+            [TestCase(4,2,false)] //b
+            [TestCase(4,1,false)] //b
             [TestCase(3,1,false)]
             [TestCase(3,0,false)]
             [TestCase(5,2,false)]

@@ -191,6 +191,7 @@ namespace Chess
 
         public void SetCastling(string castle)
         {
+            _castleRights = 0;
             _castleRights += castle.Contains('K') ? 1 : 0;
             _castleRights += castle.Contains('Q') ? 2 : 0;
             _castleRights += castle.Contains('k') ? 4 : 0;

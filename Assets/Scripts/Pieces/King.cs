@@ -10,18 +10,8 @@ namespace Chess
         public King(ChessPieceColor color) : base(color, default)
         {
         }
-        
-        public King(ChessPieceColor color, Vector2Int position) : base(color, position)
-        {
-        }
-        
-        public override char PieceChar
-        {
-            get
-            {
-                return Color == ChessPieceColor.Black ? 'k' : 'K';
-            }
-        }
+
+        public override char PieceChar => Color == ChessPieceColor.Black ? 'k' : 'K';
 
         public override string PieceName => "King";
 
@@ -52,44 +42,46 @@ namespace Chess
 
             if (x == 4 && (y == 0 || y == 7))
             {
-                if (Board.CanCastle(this, -1) && !AnyPieceBetweenThisAnd(new Vector2Int(0, y))) positions.Add(new Vector2Int(x - 2, y));
-                if (Board.CanCastle(this, 1) && !AnyPieceBetweenThisAnd(new Vector2Int(7, y))) positions.Add(new Vector2Int(x + 2, y));
+                if (Board.CanCastle(this, -1) && !CastleMoveBlocked(-1)) positions.Add(new Vector2Int(x - 2, y));
+                if (Board.CanCastle(this, 1) && !CastleMoveBlocked(1)) positions.Add(new Vector2Int(x + 2, y));
             }
             
             return positions;
         }
 
-        bool IsCastle(Vector2Int movePosition)
+        bool CastleMoveBlocked(int xDirection)
         {
-            if (Math.Abs(movePosition.x - Position.x) != 2 || movePosition.y - Position.y != 0) return false;
-            if (!(Board.GetPieceAt(new Vector2Int(GetCorner(movePosition), Position.y)) is Rook rook)) return false;
-            if (AnyPieceBetweenThisAnd(rook.Position)) return false;
+            Vector2Int transitPosition = new Vector2Int(Position.x + xDirection, Position.y);
+            if (AnyPieceInPosition(transitPosition)) return true;
+            if (OpponentInPosition(transitPosition.x + xDirection, Position.y)) return true;
+            if (PutsKingInCheck(transitPosition)) return true;
 
-            return true;
-        }
-
-        bool AnyPieceBetweenThisAnd(Vector2Int rookPosition)
-        {
-            int xDirection = Math.Sign(rookPosition.x - Position.x);
-            int x = Position.x + xDirection;
-            while (x != rookPosition.x)
-            {
-                Vector2Int position = new Vector2Int(x, Position.y);
-                if (AnyPieceInPosition(position)) return true;
-                if (PutsKingInCheck(position)) return true;
-                x += xDirection;
-            }
             return false;
         }
-
-        bool PutsInCheck(Vector2Int position)
+        
+        public override bool IsLegalMove(Vector2Int newPosition)
         {
-            return Board.ChessPiecesByColor(Color.Opponent())
-                .Any(piece => piece.IsLegalMove(position));
+            return base.IsLegalMove(newPosition) 
+                   && (IsOneSpaceMove(newPosition) || IsCastle(newPosition))
+                   && !PutsKingInCheck(newPosition);
         }
 
-        int GetCorner(Vector2Int movePosition) => Math.Sign(movePosition.x - Position.x) == 1 ? 7 : 0;
+        bool IsCastle(Vector2Int newPosition)
+        {
+            int xDifference = newPosition.x - Position.x;
+            int yDifference = newPosition.y - Position.y;
 
-        bool OneSpace(Vector2Int movePosition) => Math.Abs(movePosition.x - Position.x) <= 1 && Math.Abs(movePosition.y - Position.y) <= 1;
+            if (Math.Abs(xDifference) != 2 || yDifference != 0) return false;
+            
+            int xDirection = Math.Sign(xDifference);
+
+            return Board.CanCastle(this, xDirection) &&
+                   !CastleMoveBlocked(xDirection);
+        }
+
+        bool IsOneSpaceMove(Vector2Int newPosition)
+        {
+            return Math.Abs(newPosition.x - Position.x) <= 1 && Math.Abs(newPosition.y - Position.y) <= 1;
+        }
     }
 }
