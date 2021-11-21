@@ -56,9 +56,11 @@ namespace Chess
 
         public virtual bool IsLegalMove(Vector2Int newPosition)
         {
-            return IsValidPosition(newPosition) &&
-                   newPosition != Position &&
-                   !AllyInPosition(newPosition);
+            if (!IsValidPosition(newPosition)) return false;
+            if (newPosition == Position) return false;
+            if (AllyInPosition(newPosition)) return false;
+            
+            return true;
         }
 
         public bool IsMyTurn() => Board.PlayerTurn == Color;
@@ -93,8 +95,13 @@ namespace Chess
         protected bool AllyInPosition(int x, int y) => PieceInPosition(Color, x, y);
         protected bool AnyPieceInPosition(Vector2Int position) => Board?[position.x, position.y] != null;
         protected bool AnyPieceInPosition(int x, int y) => Board?[x, y] != null;
-        bool PieceInPosition(ChessPieceColor color, int x, int y) => Board?[x, y]?.Color == color;
-        
+        bool PieceInPosition(ChessPieceColor color, int x, int y)
+        {
+            ChessPiece piece = Board?[x, y];
+            if (piece == null) return false;
+            return piece.Color == color;
+        }
+
         public Move To(int x, int y) => new Move(this, new Vector2Int(x, y));
 
         public static ChessPiece FromChar(char c)
@@ -156,7 +163,7 @@ namespace Chess
             
             Board.PlayerTurn = Board.PlayerTurn.Opponent();
             MoveTo(oldPosition);
-            if (targetOpponent != null) Board.AddPiece(targetOpponent);
+            if (targetOpponent != null) Board[newPosition.x, newPosition.y] = targetOpponent;
 
             checkForCheck = false;
             return inCheck;

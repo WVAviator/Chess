@@ -27,7 +27,7 @@ namespace Chess
         public override bool IsLegalMove(Vector2Int newPosition)
         {
             return base.IsLegalMove(newPosition) 
-                   && Diagonal(newPosition) || VerticalOrHorizontal(newPosition)
+                   && (Diagonal(newPosition) || VerticalOrHorizontal(newPosition))
                    && !Blocked(newPosition) 
                    && !PutsKingInCheck(newPosition);
         }

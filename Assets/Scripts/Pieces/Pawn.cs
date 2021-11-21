@@ -46,7 +46,26 @@ namespace Chess
 
         public override bool IsLegalMove(Vector2Int newPosition)
         {
-            return PotentialPositions.Contains(newPosition);
+            if (!base.IsLegalMove(newPosition)) return false;
+            if (!LegalPawnMove(newPosition)) return false;
+            return !PutsKingInCheck(newPosition);
         }
+
+        public bool LegalPawnMove(Vector2Int newPosition)
+        {
+            if (newPosition.x == Position.x)
+            {
+                if (newPosition.y == Position.y + _movementDirection)
+                    return !AnyPieceInPosition(newPosition);
+                if (newPosition.y == Position.y + 2 * _movementDirection && Position.y == _startingRow)
+                    return !AnyPieceInPosition(newPosition) && !AnyPieceInPosition(newPosition.x, Position.y + _movementDirection);
+            }
+            
+            if (Mathf.Abs(newPosition.x - Position.x) == 1 && newPosition.y == Position.y + _movementDirection)
+                return OpponentInPosition(newPosition) || Board.EnPassant == newPosition;
+
+            return false;
+        }
+
     }
 }

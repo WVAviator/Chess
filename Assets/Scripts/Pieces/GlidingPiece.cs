@@ -29,7 +29,7 @@ namespace Chess
 
             return false;
         }
-        
+
         protected List<Vector2Int> GetPotentialDiagonalPositions()
         {
             int x = Position.x;

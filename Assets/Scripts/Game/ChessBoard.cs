@@ -9,6 +9,8 @@ namespace Chess
     {
         public List<ChessPiece> ChessPieces => _whitePieces.Concat(_blackPieces).ToList();
 
+        public ChessPiece[] ChessPieceArray = new ChessPiece[64];
+
         public ChessPieceColor PlayerTurn;
 
         HashSet<ChessPiece> _blackPieces;
@@ -126,11 +128,14 @@ namespace Chess
             return moves;
         }
 
-        public void AddPiece(ChessPiece newPiece)
+        void AddPiece(ChessPiece newPiece)
         {
             newPiece.Board = this;
             if (newPiece.Color == ChessPieceColor.Black) _blackPieces.Add(newPiece);
             else _whitePieces.Add(newPiece);
+            
+            
+            
             OnPieceAdded?.Invoke(newPiece);
             OnBoardUpdated?.Invoke();
             

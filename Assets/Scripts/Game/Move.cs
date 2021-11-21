@@ -54,7 +54,7 @@ namespace Chess
 
             ChessPiece = chessPiece;
             _isLegal = preverified || ChessPiece.IsLegalMove(NewPosition);
-            
+
             if (!_isLegal) return;
             
             _board = ChessPiece.Board;
@@ -101,8 +101,7 @@ namespace Chess
             if (IsPromotion)
             {
                 _board.RemovePiece(ChessPiece);
-                PromotionPiece.Position = NewPosition;
-                _board.AddPiece(PromotionPiece);
+                _board[NewPosition.x, NewPosition.y] = PromotionPiece;
             }
             
             if (!quiet) _board.AddToMoveHistory(this);
@@ -144,7 +143,7 @@ namespace Chess
             ChessPiece.MoveTo(_oldPosition);
             
             if (_isCastle) _castleRook.MoveTo(_castleRookStartPosition);
-            if (_targetOpponent != null) _board.AddPiece(_targetOpponent);
+            if (_targetOpponent != null) _board[NewPosition.x, NewPosition.y] = _targetOpponent;
             
             
             UndoSetCastling();
@@ -154,21 +153,14 @@ namespace Chess
 
             if (IsPromotion)
             {
-                _board.AddPiece(ChessPiece);
                 _board.RemovePiece(PromotionPiece);
+                _board[_oldPosition.x, _oldPosition.y] = ChessPiece;
             }
             
             if (!quiet) _board.RemoveFromMoveHistory();
             if (quiet) _board.PlayerTurn = _board.PlayerTurn.Opponent();
             
             OnMoveExecutedOrUndone?.Invoke();
-        }
-        
-        static bool IsValidPosition(Vector2Int potentialPosition)
-        {
-            bool isValid = potentialPosition.x >= 0 && potentialPosition.y >= 0 
-                           && potentialPosition.x <= 7 && potentialPosition.y <= 7;
-            return isValid;
         }
 
         void CheckCastle()
