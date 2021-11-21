@@ -10,11 +10,14 @@ namespace Chess
     {
         public ChessPieceColor Color { get; }
         public abstract char PieceChar { get; }
-        
-        public ChessBoard Board;
+
+
+        public ChessBoard Board { get; set; }
+
+        static bool checkForCheck = false;
 
         public abstract string PieceName { get; }
-        public event Action<Vector2Int> OnPieceMoved;
+        public event Action<ChessPiece, Vector2Int> OnPieceMoved;
         public Vector2Int Position
         {
             get => _position;
@@ -32,6 +35,7 @@ namespace Chess
         {
             Color = color;
             Position = position;
+            Move.OnMoveExecutedOrUndone += ClearPotentialPositions;
         }
         public void MoveTo(Vector2Int newPosition)
         {
@@ -41,7 +45,7 @@ namespace Chess
                 return;
             }
             Position = newPosition;
-            OnPieceMoved?.Invoke(newPosition);
+            OnPieceMoved?.Invoke(this, newPosition);
         }
         static bool IsValidPosition(Vector2Int potentialPosition)
         {
@@ -50,28 +54,43 @@ namespace Chess
             return isValid;
         }
 
-        public bool IsLegalMove(Vector2Int newPosition) => IsLegalMove(new Move(this, newPosition));
+        public virtual bool IsLegalMove(Vector2Int newPosition)
+        {
+            //return IsMyTurn() && IsValidPosition(newPosition) && !AllyInPosition(newPosition);
+            return IsMyTurn() && PotentialPositions.Contains(newPosition) && !PutsKingInCheck(newPosition);
+        }
 
         public bool IsMyTurn() => Board.PlayerTurn == Color;
 
-        public abstract bool IsLegalMove(Move move);
-        
         public HashSet<Move> GetPossibleMoves()
         {
             HashSet<Move> legalMoves = new HashSet<Move>();
-            HashSet<Move> potentialMoves = GetPotentialMoves();
-            foreach (Move move in potentialMoves)
+            List<Vector2Int> potentialMoves = PotentialPositions;
+            foreach (Vector2Int pos in potentialMoves)
             {
-                if (move.IsLegal()) legalMoves.Add(move);
+                if (IsLegalMove(pos)) legalMoves.Add(new Move(this, pos, true));
             }
             return legalMoves;
         }
 
-        protected abstract HashSet<Move> GetPotentialMoves();
+        List<Vector2Int> _potentialPositions;
+        protected List<Vector2Int> PotentialPositions
+        {
+            get { return _potentialPositions ??= GetPotentialPositions(); }
+        }
+        
+        public void ClearPotentialPositions()
+        {
+            _potentialPositions = null;
+        }
+        protected abstract List<Vector2Int> GetPotentialPositions();
 
         protected bool OpponentInPosition(Vector2Int position) => PieceInPosition(Color.Opponent(), position.x, position.y);
+        protected bool OpponentInPosition(int x, int y) => PieceInPosition(Color.Opponent(), x, y);
         protected bool AllyInPosition(Vector2Int position) => PieceInPosition(Color, position.x, position.y);
+        protected bool AllyInPosition(int x, int y) => PieceInPosition(Color, x, y);
         protected bool AnyPieceInPosition(Vector2Int position) => Board?[position.x, position.y] != null;
+        protected bool AnyPieceInPosition(int x, int y) => Board?[x, y] != null;
         bool PieceInPosition(ChessPieceColor color, int x, int y) => Board?[x, y]?.Color == color;
         
         public Move To(int x, int y) => new Move(this, new Vector2Int(x, y));
@@ -108,6 +127,39 @@ namespace Chess
                     Debug.LogError($"Invalid piece character: \"{c}\"");
                     return null;
             }
+        }
+
+        protected bool PutsKingInCheck(Vector2Int newPosition)
+        {
+            King king = Board.GetKing(Color);
+            if (king == null) return false;
+
+            if (checkForCheck) return false;
+            checkForCheck = true;
+            
+            Vector2Int oldPosition = Position;
+            
+            bool inCheck = false;
+            
+            ChessPiece targetOpponent = Board[newPosition.x, newPosition.y];
+            
+            if (targetOpponent != null) Board.RemovePiece(targetOpponent);
+            MoveTo(newPosition);
+            Board.PlayerTurn = Board.PlayerTurn.Opponent();
+
+            foreach (ChessPiece piece in Board.ChessPiecesByColor(Color.Opponent()))
+            {
+                piece.ClearPotentialPositions();
+                if (piece.IsLegalMove(king.Position)) inCheck = true;
+            }
+            
+            Board.PlayerTurn = Board.PlayerTurn.Opponent();
+            MoveTo(oldPosition);
+            if (targetOpponent != null) Board.AddPiece(targetOpponent);
+            
+
+            checkForCheck = false;
+            return inCheck;
         }
     }
 }

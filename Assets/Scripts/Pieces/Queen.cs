@@ -26,22 +26,20 @@ namespace Chess
 
         public override int GetScore() => 9;
 
-        public override bool IsLegalMove(Move move)
+        public override bool IsLegalMove(Vector2Int movePosition)
         {
-            if (move.NewPosition == Position) return false;
-            if (!Diagonal(move) && !VerticalOrHorizontal(move)) return false;
-            if (Blocked(move)) return false;
-            if (AllyInPosition(move.NewPosition)) return false;
-            
-            return true;
+            return base.IsLegalMove(movePosition) &&
+                   (Diagonal(movePosition) || VerticalOrHorizontal(movePosition)) &&
+                   !Blocked(movePosition) &&
+                   !PutsKingInCheck(movePosition);
         }
 
-        protected override HashSet<Move> GetPotentialMoves()
+        protected override List<Vector2Int> GetPotentialPositions()
         {
-            HashSet<Move> moves = new HashSet<Move>();
-            moves.UnionWith(GetPotentialDiagonalMoves());
-            moves.UnionWith(GetPotentialVerticalHorizontalMoves());
-            return moves;
+            List<Vector2Int> positions = new List<Vector2Int>();
+            positions.AddRange(GetPotentialDiagonalPositions());
+            positions.AddRange(GetPotentialVerticalHorizontalPositions());
+            return positions;
         }
     }
 }

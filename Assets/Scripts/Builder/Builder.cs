@@ -26,7 +26,7 @@
         
         public Builder StartGame()
         {
-            _board.GameStart();
+            _board.StartGame();
             return this;
         }
 

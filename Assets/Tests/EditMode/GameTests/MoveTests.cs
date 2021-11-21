@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 using Chess;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Tests.EditMode
             [Test]
             public void LegalMoveExecutesSuccessfully()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Pawn>().At(6, 6).AndGet(out var pawn)
                     .Move.From(6, 6).To(6, 4).Execute();
@@ -26,7 +27,7 @@ namespace Tests.EditMode
             [Test]
             public void IllegalMoveFailsToExecute()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<Pawn>().At(6, 6).AndGet(out var pawn)
                     .Move.From(6, 6).To(6, 3).Execute();
                 
@@ -41,7 +42,7 @@ namespace Tests.EditMode
             [Test]
             public void TakingOpponentPieceRemovesPieceFromBoard()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(3, 3)
                     .Place.Black<Pawn>().At(4, 4).AndGet(out var pawn)
                     .Move.From(3, 3).To(4, 4).Execute()
@@ -56,7 +57,7 @@ namespace Tests.EditMode
             [Test]
             public void SuccessfulUndoAfterMoveExecuted()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<Pawn>().At(6, 6).AndGet(out var pawn)
                     .BlackGoesFirst
                     .Move.From(6, 6).To(6, 4).Execute()
@@ -69,7 +70,7 @@ namespace Tests.EditMode
             [Test]
             public void UndoBeforeExecuteDoesNothing()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<Pawn>().At(6, 6).AndGet(out var pawn)
                     .BlackGoesFirst
                     .Move.From(6, 6).To(6, 4)
@@ -82,7 +83,7 @@ namespace Tests.EditMode
             [Test]
             public void UndoRestoresOpponentPieceToBoard()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(3, 3)
                     .Place.Black<Pawn>().At(4, 4).AndGet(out var pawn)
                     .Move.From(3, 3).To(4, 4).Execute()
@@ -98,13 +99,15 @@ namespace Tests.EditMode
             [Test]
             public void KingCannotSacrificeSelf()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7).AndGet(out var king)
                     .Place.White<Queen>().At(0, 6)
                     .Place.White<Bishop>().At(2, 4)
                     .Move.From(0, 6).To(4, 6).Execute();
                 
+                //Debug.Log(king.GetPossibleMoves().ElementAt(0).ToString());
                 Assert.IsTrue(king.GetPossibleMoves().Count == 0);
+                
             }
         }
     }

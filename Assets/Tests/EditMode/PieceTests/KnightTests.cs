@@ -14,7 +14,7 @@ namespace Tests.EditMode
 
             public Scenario1()
             {
-                 Setup.Board
+                 BoardBuilder.BuildBoard
                     .Place.White<Knight>().At(1, 5).AndGet(out knight)
                     .Place.White<Pawn>().At(3, 6)
                     .Place.Black<Pawn>().At(3, 4);
@@ -53,7 +53,7 @@ namespace Tests.EditMode
 
             public Scenario2()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Knight>().At(3, 2).AndGet(out knight)
                     .Place.White<Pawn>().At(4, 2)

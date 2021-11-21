@@ -6,24 +6,25 @@ namespace Chess
 {
     public class Move
     {
-        public Vector2Int NewPosition => _newPosition;
-        readonly Vector2Int _newPosition;
-        public Vector2Int OldPosition => _oldPosition;
-        readonly Vector2Int _oldPosition;
+        public Vector2Int NewPosition { get; }
+        public ChessPiece ChessPiece { get; }
+
+        Vector2Int _oldPosition;
+
+        bool _isLegal;
 
         Rook _castleRook;
         bool _isCastle;
 
-        public int YDifference { get; }
-        public int XDifference { get; }
-        public int YDirection { get; }
-        public int XDirection { get; }
+        int _yDirection;
+        int _xDirection;
 
-        public ChessPiece ChessPiece { get; }
-        
-        public ChessBoard Board { get; }
-        
-        public ChessPiece TargetOpponent { get; set; }
+        public static event Action OnMoveExecutedOrUndone;
+
+
+        readonly ChessBoard _board;
+
+        ChessPiece _targetOpponent;
         public bool IsPromotion { get; set; }
 
         ChessPiece _promotionPiece;
@@ -44,36 +45,42 @@ namespace Chess
 
         bool _isExecuted;
         Vector2Int _castleRookStartPosition;
+        bool _disabledCastling;
+        readonly Vector2Int? _formerEnPassantOpening;
 
-        public Move(ChessPiece chessPiece, Vector2Int newPosition)
+        public Move(ChessPiece chessPiece, Vector2Int newPosition, bool preverified = false)
         {
-            _newPosition = newPosition;
+            NewPosition = newPosition;
+
             ChessPiece = chessPiece;
-            Board = ChessPiece.Board;
+            _isLegal = preverified || ChessPiece.IsLegalMove(NewPosition);
+            
+            if (!_isLegal) return;
+            
+            _board = ChessPiece.Board;
+            _formerEnPassantOpening = _board.EnPassant;
+            
             _oldPosition = chessPiece.Position;
+            
+            _yDirection = Math.Sign(NewPosition.y - _oldPosition.y);
+            _xDirection = Math.Sign(NewPosition.x - _oldPosition.x);
 
             PromotionPiece = new Queen(ChessPiece.Color);
+            CheckCastle();
+            CheckPromotion();
             
-            if (!IsValidPosition(_newPosition)) _newPosition = chessPiece.Position;
+            _targetOpponent = _board?[NewPosition.x, NewPosition.y];
 
-            YDifference = _newPosition.y - _oldPosition.y;
-            XDifference = _newPosition.x - _oldPosition.x;
-            YDirection = Math.Sign(YDifference);
-            XDirection = Math.Sign(XDifference);
-
-            TargetOpponent = Board?[NewPosition.x, NewPosition.y];
-            if (TargetOpponent?.Color == ChessPiece.Color) TargetOpponent = null;
+            CheckEnPassant();
         }
 
-        public int Score => TargetOpponent?.GetScore() ?? 0;
+        public int Score => _targetOpponent?.GetScore() ?? 0;
+
+
         public bool IsLegal()
         {
-            return !PutsKingInCheck() && ChessPiece.IsLegalMove(this) && IsMyTurn();
+            return _isLegal;
         }
-
-        bool IsMyTurn() => Board.PlayerTurn == ChessPiece.Color;
-        
-
         public void Execute(bool quiet = false)
         {
             if (!IsLegal())
@@ -82,23 +89,51 @@ namespace Chess
                 return;
             }
             ChessPiece.MoveTo(NewPosition);
-            if (_isCastle) _castleRook.MoveTo(NewPosition + new Vector2Int(-XDirection, 0));
+            if (_isCastle) _castleRook.MoveTo(NewPosition + new Vector2Int(-_xDirection, 0));
             
+            SetEnPassantOpening();
+            SetCastling();
 
-            if (TargetOpponent != null) Board.RemovePiece(TargetOpponent);
+            if (_targetOpponent != null) _board.RemovePiece(_targetOpponent);
             
-            if (!quiet) Board.AddToMoveHistory(this);
+            
             
             if (IsPromotion)
             {
-                Board.RemovePiece(ChessPiece);
+                _board.RemovePiece(ChessPiece);
                 PromotionPiece.Position = NewPosition;
-                Board.AddPiece(PromotionPiece);
+                _board.AddPiece(PromotionPiece);
             }
-
-            if (quiet) Board.PlayerTurn = Board.PlayerTurn.Opponent();
             
+            if (!quiet) _board.AddToMoveHistory(this);
+            if (quiet) _board.PlayerTurn = _board.PlayerTurn.Opponent();
+
             _isExecuted = true;
+            
+            OnMoveExecutedOrUndone?.Invoke();
+        }
+
+        void SetEnPassantOpening()
+        {
+            _board.EnPassant = null;
+            if (ChessPiece is Pawn && Math.Abs(NewPosition.y - _oldPosition.y) == 2)
+            {
+                Vector2Int enPassantSquare = new Vector2Int(_oldPosition.x, _oldPosition.y + _yDirection);
+                _board.EnPassant = enPassantSquare;
+            }
+        }
+
+        void SetCastling()
+        {
+            if (ChessPiece is Rook || ChessPiece is King)
+            {
+                _disabledCastling = _board.TryDisableCastling(_oldPosition);
+            }
+        }
+
+        void UndoSetCastling()
+        {
+            if (_disabledCastling) _board.UndoDisableCastling(_oldPosition);
         }
 
         public void Undo(bool quiet = false)
@@ -106,23 +141,27 @@ namespace Chess
             if (!_isExecuted) return;
             _isExecuted = false;
             
-            if (!quiet && Board.MoveHistory.Peek() != this)
-            {
-                Debug.LogError($"Attempted to undo moves out of order! Move {ChessPiece.GetType().Name} to {NewPosition} is not the most recent move.");
-                return;
-            }
             ChessPiece.MoveTo(_oldPosition);
+            
             if (_isCastle) _castleRook.MoveTo(_castleRookStartPosition);
-            if (TargetOpponent != null) Board.AddPiece(TargetOpponent);
-            if (!quiet) Board.RemoveFromMoveHistory();
+            if (_targetOpponent != null) _board.AddPiece(_targetOpponent);
+            
+            
+            UndoSetCastling();
+
+            _board.EnPassant = _formerEnPassantOpening;
+
 
             if (IsPromotion)
             {
-                Board.AddPiece(ChessPiece);
-                Board.RemovePiece(PromotionPiece);
+                _board.AddPiece(ChessPiece);
+                _board.RemovePiece(PromotionPiece);
             }
             
-            if (quiet) Board.PlayerTurn = Board.PlayerTurn.Opponent();
+            if (!quiet) _board.RemoveFromMoveHistory();
+            if (quiet) _board.PlayerTurn = _board.PlayerTurn.Opponent();
+            
+            OnMoveExecutedOrUndone?.Invoke();
         }
         
         static bool IsValidPosition(Vector2Int potentialPosition)
@@ -132,47 +171,30 @@ namespace Chess
             return isValid;
         }
 
-        bool PutsKingInCheck()
+        void CheckCastle()
         {
-            King king = FindKing();
-            if (king == null) return false;
+            if (!(ChessPiece is King king)) return;
+            if (Math.Abs(NewPosition.x - _oldPosition.x) != 2) return;
+            if (!_board.CanCastle(king, _xDirection)) return;
             
-            bool inCheck = false;
-            
-            ChessPiece.MoveTo(NewPosition);
-            if (TargetOpponent != null) Board.RemovePiece(TargetOpponent);
-            
-            foreach (ChessPiece piece in Board.ChessPiecesByColor(ChessPiece.Color.Opponent()))
-            {
-                if (piece == TargetOpponent) continue;
-                if (piece.IsLegalMove(king.Position)) inCheck = true;
-            }
-            
-            if (TargetOpponent != null) Board.AddPiece(TargetOpponent);
-            ChessPiece.MoveTo(_oldPosition);
-
-            return inCheck;
-        }
-
-        King FindKing()
-        {
-            King king = null;
-            foreach (ChessPiece piece in Board.ChessPiecesByColor(ChessPiece.Color))
-            {
-                if (piece is King)
-                {
-                    king = (King) piece;
-                    break;
-                }
-            }
-            return king;
-        }
-
-        public void IsCastle(Rook rook)
-        {
             _isCastle = true;
-            _castleRook = rook;
-            _castleRookStartPosition = rook.Position;
+            Vector2Int rookPosition = new Vector2Int(_xDirection == 1 ? 7 : 0, _oldPosition.y);
+            _castleRook = (Rook)_board[rookPosition.x, rookPosition.y];
+            _castleRookStartPosition = rookPosition;
+        }
+
+        void CheckPromotion()
+        {
+            if (!(ChessPiece is Pawn pawn)) return;
+            if (NewPosition.y != 0 && NewPosition.y != 7) return;
+            IsPromotion = true;
+        }
+
+        void CheckEnPassant()
+        {
+            if (!(ChessPiece is Pawn)) return;
+            if (_board.EnPassant != NewPosition) return;
+            _targetOpponent = _board[NewPosition.x, _oldPosition.y];
         }
 
         public override string ToString() => ChessPiece.Color + " " + ChessPiece.GetType().Name + " to " + NewPosition;

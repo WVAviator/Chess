@@ -26,33 +26,31 @@ namespace Chess
 
         public override int GetScore() => 3;
 
-        public override bool IsLegalMove(Move move)
-        {
-            if (AllyInPosition(move.NewPosition)) return false;
-            if (IsLShaped(move)) return true;
-            return false;
-        }
-
-        protected override HashSet<Move> GetPotentialMoves()
+        protected override List<Vector2Int> GetPotentialPositions()
         {
             int x = Position.x;
             int y = Position.y;
-            HashSet<Move> moves = new HashSet<Move>();
+            List<Vector2Int> positions = new List<Vector2Int>();
             
-            if (x + 1 < 8 && y + 2 < 8) moves.Add(To(x + 1, y + 2));
-            if (x + 1 < 8 && y - 2 >= 0) moves.Add(To(x + 1, y - 2));
-            if (x - 1 >= 0 && y + 2 < 8) moves.Add(To(x - 1, y + 2));
-            if (x - 1 >= 0 && y - 2 >= 0) moves.Add(To(x - 1, y - 2));
-            if (x + 2 < 8 && y + 1 < 8) moves.Add(To(x + 2, y + 1));
-            if (x + 2 < 8 && y - 1 >= 0) moves.Add(To(x + 2, y - 1));
-            if (x - 2 >= 0 && y + 1 < 8) moves.Add(To(x - 2, y + 1));
-            if (x - 2 >= 0 && y - 1 >= 0) moves.Add(To(x - 2, y - 1));
+            if (x + 1 < 8 && y + 2 < 8 && !AllyInPosition(x+1, y + 2)) positions.Add(new Vector2Int(x + 1, y + 2));
+            if (x + 1 < 8 && y - 2 >= 0 && !AllyInPosition(x+1, y - 2)) positions.Add(new Vector2Int(x + 1, y - 2));
+            if (x - 1 >= 0 && y + 2 < 8 && !AllyInPosition(x-1, y + 2)) positions.Add(new Vector2Int(x - 1, y + 2));
+            if (x - 1 >= 0 && y - 2 >= 0 && !AllyInPosition(x-1, y - 2)) positions.Add(new Vector2Int(x - 1, y - 2));
+            if (x + 2 < 8 && y + 1 < 8 && !AllyInPosition(x+2, y + 1)) positions.Add(new Vector2Int(x + 2, y + 1));
+            if (x + 2 < 8 && y - 1 >= 0 && !AllyInPosition(x+2, y -1)) positions.Add(new Vector2Int(x + 2, y - 1));
+            if (x - 2 >= 0 && y + 1 < 8 && !AllyInPosition(x-2, y + 1)) positions.Add(new Vector2Int(x - 2, y + 1));
+            if (x - 2 >= 0 && y - 1 >= 0 && !AllyInPosition(x-2, y - 1)) positions.Add(new Vector2Int(x - 2, y - 1));
 
-            return moves;
+            return positions;
         }
 
-        static bool IsLShaped(Move move) =>
-            (Math.Abs(move.XDifference) == 2 && Math.Abs(move.YDifference) == 1) ||
-            (Math.Abs(move.XDifference) == 1 && Math.Abs(move.YDifference) == 2);
+        bool IsLShaped(Vector2Int movePosition)
+        {
+            int xDifference = Math.Abs(movePosition.x - Position.x);
+            int yDifference = Math.Abs(movePosition.y - Position.y);
+            
+            return (xDifference == 2 && yDifference == 1) ||
+                   (xDifference == 1 && yDifference == 2);
+        }
     }
 }

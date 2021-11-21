@@ -26,7 +26,7 @@ namespace Chess
         void Start()
         {
             _chessPieceBehaviour.ChessPiece.OnPieceMoved += UpdateTargetPosition;
-            UpdateTargetPosition(_chessPieceBehaviour.ChessPiece.Position);
+            UpdateTargetPosition(_chessPieceBehaviour.ChessPiece, _chessPieceBehaviour.ChessPiece.Position);
             transform.position = _targetPosition;
         }
         
@@ -66,7 +66,7 @@ namespace Chess
         
         bool IsCloseEnough() => (transform.position - _targetPosition).sqrMagnitude < 0.001f;
 
-        void UpdateTargetPosition(Vector2Int position)
+        void UpdateTargetPosition(ChessPiece piece, Vector2Int position)
         {
             _targetPosition = new Vector3(position.x, position.y, -0.05f);
         }

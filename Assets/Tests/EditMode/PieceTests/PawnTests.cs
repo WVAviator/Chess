@@ -13,7 +13,7 @@ namespace Tests.EditMode
 
             public Scenario1()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(3, 1).AndGet(out _pawn)
                     .Place.Black<Pawn>().At(4, 2);
             }
@@ -49,7 +49,7 @@ namespace Tests.EditMode
 
             public Scenario2()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Pawn>().At(3, 6).AndGet(out _pawn)
                     .Place.White<Pawn>().At(3, 5)
@@ -84,7 +84,7 @@ namespace Tests.EditMode
             
             public Scenario3()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Pawn>().At(3, 5).AndGet(out _pawn)
                     .Place.Black<Pawn>().At(2, 4)
@@ -118,7 +118,7 @@ namespace Tests.EditMode
 
             public Scenario4()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(6, 1).AndGet(out pawn)
                     .Place.Black<Knight>().At(5, 2)
                     .Place.White<King>().At(3, 1);
@@ -149,7 +149,7 @@ namespace Tests.EditMode
             [Test]
             public void WhiteCanTakeBlackEnPassant()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(4, 4)
                     .Place.Black<Pawn>().At(3, 6)
                     .BlackGoesFirst
@@ -162,7 +162,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackTakesWhiteEnPassant()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(4, 1).AndGet(out var pawn)
                     .Place.Black<Pawn>().At(3, 3)
                     .Move.From(4, 1).To(4, 3).Execute()
@@ -179,7 +179,7 @@ namespace Tests.EditMode
             [Test]
             public void WhitePawnNoLongerExistsAtLastSquare()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(0, 6).AndGet(out var pawn)
                     .Move.From(0, 6).To(0, 7).Execute()
                     .Get(out var board);
@@ -190,7 +190,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackPawnPromotionCanBeUndone()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Pawn>().At(0, 1).AndGet(out var pawn)
                     .Move.From(0, 1).To(0, 0).Execute()
@@ -203,7 +203,7 @@ namespace Tests.EditMode
             [Test]
             public void WhitePawnPromotesToRequestedQueen()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(0, 6).AndGet(out var pawn)
                     .Move.From(0, 6).To(0, 7).AndGet(out var move)
                     .Get(out var board);
@@ -217,7 +217,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackPawnPromotionUndoAlsoRemovesNewQueen()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<Pawn>().At(0, 1).AndGet(out var pawn)
                     .Move.From(0, 1).To(0, 0).Execute()

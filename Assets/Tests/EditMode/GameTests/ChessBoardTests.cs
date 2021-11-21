@@ -16,7 +16,7 @@ namespace Tests.EditMode
             public void CorrectNumberOfPiecesInStandardSetup()
             {
                 ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
+                board.Setup().StandardSetup();
             
                 Assert.IsTrue(board.ChessPieces.Count == 32);
             }
@@ -25,7 +25,7 @@ namespace Tests.EditMode
             public void CorrectNumberOfPawns()
             {
                 ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
+                board.Setup().StandardSetup();
 
                 int pawnCount = board.ChessPieces.FindAll(p => p is Pawn).Count;
                 Assert.IsTrue(pawnCount == 16);
@@ -38,7 +38,7 @@ namespace Tests.EditMode
             public void AllPossibleMovesFromDefaultSetupCorrect()
             {
                 ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
+                board.Setup().StandardSetup();
 
                 HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 Assert.IsTrue(allPossible.Count == 20);
@@ -47,7 +47,7 @@ namespace Tests.EditMode
             public void AllPossibleMovesAfterPawn3MovesCorrect()
             {
                 ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
+                board.Setup().StandardSetup();
 
                 Vector2Int pawnPosition = new Vector2Int(3, 1);
                 Pawn pawn = (Pawn)board.GetPieceAt(pawnPosition);
@@ -66,33 +66,13 @@ namespace Tests.EditMode
             public void MoveStackReturnsCorrectCount()
             {
                 ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
+                board.Setup().StandardSetup();
 
                 HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
                 allPossible.ElementAt(0).Execute();
                 allPossible = board.AllPossibleMoves(ChessPieceColor.Black);
                 allPossible.ElementAt(0).Execute();
 
-                int actual = board.MoveHistory.Count;
-                Assert.IsTrue(actual == 2);
-            }
-
-            [Test]
-            public void CannotUndoMovesOutOfOrder()
-            {
-                ChessBoard board = new ChessBoard();
-                board.Setup().Standard();
-
-                HashSet<Move> allPossible = board.AllPossibleMoves(ChessPieceColor.White);
-                Move testMove = allPossible.ElementAt(0);
-                testMove.Execute();
-            
-                allPossible = board.AllPossibleMoves(ChessPieceColor.Black);
-                allPossible.ElementAt(0).Execute();
-            
-                testMove.Undo();
-                LogAssert.Expect(LogType.Error, new Regex(@".*"));
-            
                 int actual = board.MoveHistory.Count;
                 Assert.IsTrue(actual == 2);
             }
@@ -103,7 +83,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsTrueForWhiteWhenWhiteIsInCheck()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(5, 0)
                     .Place.Black<Bishop>().At(7, 2)
                     .Get(out var board);
@@ -115,7 +95,7 @@ namespace Tests.EditMode
             [Test]
             public void ReturnsFalseForWhiteWhenWhiteIsNotInCheck()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(5, 0)
                     .Place.Black<Bishop>().At(6, 2)
                     .Get(out var board);
@@ -130,7 +110,7 @@ namespace Tests.EditMode
             [Test]
             public void WhiteCannotMoveWhenItsBlacksTurn()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.White<Pawn>().At(1, 1).AndGet(out var pawn);
 
@@ -145,7 +125,7 @@ namespace Tests.EditMode
             [Test]
             public void CheckmateMoveRegistersAsCheckmate()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Rook>().At(1, 2)
                     .Place.White<Rook>().At(0, 1)
                     .Place.Black<King>().At(5, 0)
@@ -161,7 +141,7 @@ namespace Tests.EditMode
             [Test]
             public void PawnEvaluatesToOne()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Pawn>().At(1, 1)
                     .Get(out var board);
                 
@@ -172,7 +152,7 @@ namespace Tests.EditMode
             [Test]
             public void RookEvaluatesToFive()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Rook>().At(1, 1)
                     .Get(out var board);
                 
@@ -183,7 +163,7 @@ namespace Tests.EditMode
             [Test]
             public void BishopEvaluatesToThree()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Bishop>().At(1, 1)
                     .Get(out var board);
                 
@@ -194,7 +174,7 @@ namespace Tests.EditMode
             [Test]
             public void KnightEvaluatesToThree()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Knight>().At(1, 1)
                     .Get(out var board);
                 
@@ -205,7 +185,7 @@ namespace Tests.EditMode
             [Test]
             public void QueenEvaluatesToNine()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<Queen>().At(1, 1)
                     .Get(out var board);
                 
@@ -216,7 +196,7 @@ namespace Tests.EditMode
             [Test]
             public void KingEvaluatesToOneHundred()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(1, 1)
                     .Get(out var board);
                 
@@ -227,7 +207,7 @@ namespace Tests.EditMode
             [Test]
             public void StandardSetupEvaluatesToCorrectValue()
             {
-                Setup.Board.Standard()
+                BoardBuilder.BuildBoard.StandardSetup()
                     .Get(out var board);
 
                 int white = board.EvaluateScore(ChessPieceColor.White);
@@ -251,7 +231,7 @@ namespace Tests.EditMode
                     "--------" +
                     "--------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[6, 2] is Knight && board[6, 2].Color == ChessPieceColor.White);
@@ -272,7 +252,7 @@ namespace Tests.EditMode
                     "--------" +
                     "b-------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[0, 0] is Bishop && board[0, 0].Color == ChessPieceColor.Black);
@@ -293,7 +273,7 @@ namespace Tests.EditMode
                     "--------" +
                     "--------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[2, 6] is Rook && board[2, 6].Color == ChessPieceColor.Black);
@@ -314,7 +294,7 @@ namespace Tests.EditMode
                     "--------" +
                     "--------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[3, 3] is Queen && board[3, 3].Color == ChessPieceColor.Black);
@@ -335,7 +315,7 @@ namespace Tests.EditMode
                     "--------" +
                     "k-------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[7, 4] is King && board[7, 4].Color == ChessPieceColor.White);
@@ -356,7 +336,7 @@ namespace Tests.EditMode
                     "p-------" +
                     "--------";
                 
-                Setup.Board.WithString(testString)
+                BoardBuilder.BuildBoard.WithString(testString)
                     .Get(out var board);
                 
                 Assert.IsTrue(board[0, 1] is Pawn && board[0, 1].Color == ChessPieceColor.Black);
@@ -376,7 +356,7 @@ namespace Tests.EditMode
                     "--------" +
                     "p----Q--" +
                     "--B-----";
-                Setup.Board.WithString(input)
+                BoardBuilder.BuildBoard.WithString(input)
                     .Get(out var board);
                 
                 string output = board.ConvertToBoardString();

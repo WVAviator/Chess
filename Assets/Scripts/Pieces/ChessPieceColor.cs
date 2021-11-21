@@ -2,6 +2,7 @@
 {
     public enum ChessPieceColor
     {
-        White, Black
+        White = 8, 
+        Black = 16
     }
 }

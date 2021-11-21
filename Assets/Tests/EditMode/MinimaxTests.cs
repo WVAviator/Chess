@@ -12,7 +12,7 @@ namespace Tests.EditMode
         [Test]
         public void WhiteDoesNotSacrificeQueenToTakeKnight()
         {
-            Setup.Board
+            BoardBuilder.BuildBoard
                 .WithMinimaxAI(ChessPieceColor.White, 1)
                 .Place.White<Queen>().At(1, 1).AndGet(out var queen)
                 .Place.Black<Knight>().At(4, 4)
@@ -27,7 +27,7 @@ namespace Tests.EditMode
         [Test]
         public void AIPicksBestMove()
         {
-            Setup.Board
+            BoardBuilder.BuildBoard
                 .WithMinimaxAI(ChessPieceColor.Black, 0)
                 .Place.Black<Queen>().At(4, 4).AndGet(out var blackQueen)
                 .Place.White<Pawn>().At(6, 6)
@@ -43,7 +43,7 @@ namespace Tests.EditMode
         [Test]
         public void AISkipsOpportunityToTakeOpponentKnightToAvoidCheckmate()
         {
-            Setup.Board
+            BoardBuilder.BuildBoard
                 .WithMinimaxAI(ChessPieceColor.Black, 2)
                 .Place.Black<King>().At(7, 5)
                 .Place.White<King>().At(0, 4)
@@ -63,7 +63,7 @@ namespace Tests.EditMode
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             
-            Setup.Board.Standard()
+            BoardBuilder.BuildBoard.StandardSetup()
                 .WithMinimaxAI(ChessPieceColor.White, 1)
                 .StartGame();
             
@@ -78,7 +78,7 @@ namespace Tests.EditMode
             {
                 string textBoard = Resources.Load<TextAsset>("Puzzles/01").text;
 
-                Setup.Board.WithString(textBoard)
+                BoardBuilder.BuildBoard.WithString(textBoard)
                     .WithMinimaxAI(ChessPieceColor.White, 3)
                     .StartGame()
                     .Get(out var board);

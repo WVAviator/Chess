@@ -31,80 +31,53 @@ namespace Chess
 
         public override int GetScore() => 1;
 
-        public override bool IsLegalMove(Move moveToCheck)
+        bool PawnMovementIsLegal(Vector2Int movePosition)
         {
-            if (IsPromotionMove(moveToCheck) && CanMoveForward(moveToCheck))
-            {
-                moveToCheck.IsPromotion = true;
-                return true;
-            }
-            
-            
-            if (CanMoveForward(moveToCheck)) return true;
-            if (CanTakeOpponentEnPassant(moveToCheck)) return true;
-            if (CanTakeOpponentDiagonally(moveToCheck)) return true;
-            if (CanMoveTwoSpacesOnFirstTurn(moveToCheck)) return true;
+            if (MovingDiagonally(movePosition))
+                return OpponentInPosition(movePosition) || Board.EnPassant == movePosition;
+            if (MovingForward(movePosition)) return !AnyPieceInPosition(movePosition);
+            if (MovingTwoSpaces(movePosition)) return 
+                !AnyPieceInPosition(new Vector2Int(Position.x, Position.y + _movementDirection)) &&
+                !AnyPieceInPosition(movePosition);
             
             return false;
         }
 
-        bool IsPromotionMove(Move moveToCheck) => moveToCheck.NewPosition.y == _startingRow + _movementDirection * 6;
-
-        bool CanTakeOpponentEnPassant(Move move)
+        bool MovingTwoSpaces(Vector2Int movePosition)
         {
-            if (Board.MoveHistory.Count == 0) return false;
-            Move previousMove = Board.MostRecentMove();
-            if (previousMove.ChessPiece is Pawn &&
-                MovedByTwoSpaces(previousMove) &&
-                MoveForwardBy(1, move) &&
-                MoveLaterallyBy(1, move) &&
-                MoveInBehind(move, previousMove))
-            {
-                move.TargetOpponent = previousMove.ChessPiece;
-                return true;
-            }
-            return false;
+            return Position.y == _startingRow && Mathf.Abs(movePosition.y - Position.y) == 2;
         }
-
-        bool MoveInBehind(Move move, Move previousMove) => move.NewPosition == previousMove.NewPosition + new Vector2Int(0, _movementDirection);
-
-        static bool MovedByTwoSpaces(Move previousMove) => Mathf.Abs(previousMove.YDifference) == 2;
-
-        bool CanMoveTwoSpacesOnFirstTurn(Move move) =>
-            MoveForwardBy(2, move) && MoveLaterallyBy(0, move) && FirstMove() &&
-            !AnyPieceInPosition(move.NewPosition) && !AnyPieceBlocking();
-
-        bool CanTakeOpponentDiagonally(Move move) =>
-            MoveForwardBy(1, move) && MoveLaterallyBy(1, move) &&
-            OpponentInPosition(move.NewPosition);
-
-        bool CanMoveForward(Move move) => 
-            MoveForwardBy(1, move) && MoveLaterallyBy(0, move) && !AnyPieceBlocking();
-
-        bool MoveForwardBy(int spaces, Move move) => move.YDifference == _movementDirection * spaces;
-
-        bool MoveLaterallyBy(int spaces, Move move) => move.XDifference == -spaces || move.XDifference == spaces;
-
-        bool FirstMove() => Position.y == _startingRow;
-
-        bool AnyPieceBlocking() => AnyPieceInPosition(new Vector2Int(Position.x, Position.y + _movementDirection));
-
-        protected override HashSet<Move> GetPotentialMoves()
+        bool MovingForward(Vector2Int movePosition)
+        {
+            return movePosition.y == Position.y + _movementDirection;
+        }
+        bool MovingDiagonally(Vector2Int movePosition)
+        {
+            return Mathf.Abs(movePosition.x - Position.x) == 1 && movePosition.y - Position.y == _movementDirection;
+        }
+   
+        protected override List<Vector2Int> GetPotentialPositions()
         {
             int x = Position.x;
             int y = Position.y;
-            HashSet<Move> moves = new HashSet<Move>();
+            List<Vector2Int> positions = new List<Vector2Int>();
 
-            int forwardY = y + 1 * _movementDirection;
-            if (forwardY < 8 && forwardY >= 0)
+            if (!AnyPieceInPosition(x, y + _movementDirection))
             {
-                moves.Add(To(x, forwardY));
-                if (x + 1 < 8) moves.Add(To(x + 1, forwardY));
-                if (x - 1 >= 0) moves.Add(To(x - 1, forwardY));
+                positions.Add(new Vector2Int(x, y + _movementDirection));
+                if (y == _startingRow && !AnyPieceInPosition(x, y + 2 * _movementDirection))
+                    positions.Add(new Vector2Int(x, y + 2 * _movementDirection));
             }
-            if (y == _startingRow) moves.Add(To(x, y + 2 * _movementDirection));
+            if (x + 1 < 8 && (OpponentInPosition(x + 1, y + _movementDirection) 
+                              || Board.EnPassant == new Vector2Int(x + 1, y + _movementDirection)))
+                positions.Add(new Vector2Int(x + 1, y + _movementDirection));
+            
+            if (x - 1 >= 0 && (OpponentInPosition(x - 1, y + _movementDirection) 
+                               || Board.EnPassant == new Vector2Int(x - 1, y + _movementDirection)))
+                positions.Add(new Vector2Int(x - 1, y + _movementDirection));
 
-            return moves;
+
+            return positions;
         }
     }
 }

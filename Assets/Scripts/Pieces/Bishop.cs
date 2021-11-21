@@ -26,16 +26,6 @@ namespace Chess
 
         public override int GetScore() => 3;
 
-        public override bool IsLegalMove(Move move)
-        {
-            if (move.NewPosition == Position) return false;
-            if (!Diagonal(move)) return false;
-            if (Blocked(move)) return false;
-            if (AllyInPosition(move.NewPosition)) return false;
-
-            return true;
-        }
-
-        protected override HashSet<Move> GetPotentialMoves() => GetPotentialDiagonalMoves();
+        protected override List<Vector2Int> GetPotentialPositions() => GetPotentialDiagonalPositions();
     }
 }

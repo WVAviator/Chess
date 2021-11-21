@@ -8,7 +8,7 @@ namespace Tests.EditMode
         [Test]
         public void AIPicksBestMove()
         {
-            Setup.Board
+            BoardBuilder.BuildBoard
                 .WithOffensiveAI(ChessPieceColor.Black)
                 .Place.Black<Queen>().At(4, 4)
                 .Place.White<Pawn>().At(6, 6)

@@ -8,7 +8,7 @@ namespace Tests.EditMode
         [Test]
         public void BlackAIWaitsForTurn()
         {
-            Setup.Board.Standard()
+            BoardBuilder.BuildBoard.StandardSetup()
                 .WithRandomAI(ChessPieceColor.Black)
                 .Move.From(2, 1).To(2, 3).Execute()
                 .Get(out var board);

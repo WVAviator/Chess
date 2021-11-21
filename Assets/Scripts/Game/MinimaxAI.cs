@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -20,8 +21,10 @@ namespace Chess
         {
             if (color != _color) return;
 
-            HashSet<Move> possibleMoves = _board.AllPossibleMoves(_color);
+            List<Move> possibleMoves = _board.AllPossibleMoves(_color).ToList();
             if (possibleMoves.Count == 0) return;
+
+            possibleMoves.OrderByDescending(m => m.Score);
 
             Stopwatch minimaxTimer = new Stopwatch();
             minimaxTimer.Start();

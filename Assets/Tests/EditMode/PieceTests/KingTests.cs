@@ -14,7 +14,7 @@ namespace Tests.EditMode
 
             public Scenario1()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .BlackGoesFirst
                     .Place.Black<King>().At(4, 3).AndGet(out king)
                     .Place.White<Pawn>().At(4, 4)
@@ -56,7 +56,7 @@ namespace Tests.EditMode
 
             public Scenario2()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(3, 2).AndGet(out king)
                     .Place.White<Pawn>().At(3, 1)
                     .Place.Black<Queen>().At(5, 2);
@@ -94,7 +94,7 @@ namespace Tests.EditMode
             [Test]
             public void WhiteKingCanCastleRight()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(4, 0)
                     .Place.White<Rook>().At(7, 0)
                     .Move.From(4, 0).To(6, 0).AndGet(out Move move);
@@ -104,7 +104,7 @@ namespace Tests.EditMode
             [Test]
             public void WhiteKingCanCastleLeft()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(4, 0)
                     .Place.White<Rook>().At(0, 0)
                     .Move.From(4, 0).To(2, 0).AndGet(out Move move);
@@ -114,7 +114,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackKingCanCastleRight()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7)
                     .Place.Black<Rook>().At(7, 7)
                     .BlackGoesFirst
@@ -125,7 +125,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackKingCanCastleLeft()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7)
                     .Place.Black<Rook>().At(0, 7)
                     .BlackGoesFirst
@@ -136,7 +136,7 @@ namespace Tests.EditMode
             [Test]
             public void CastlingNotAllowedIfPieceBlocking()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7)
                     .Place.Black<Rook>().At(0, 7)
                     .Place.Black<Bishop>().At(3, 7)
@@ -149,19 +149,19 @@ namespace Tests.EditMode
             [Test]
             public void RookAlsoMovesWithLegalCastleLeft()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(4, 0)
                     .Place.White<Rook>().At(0, 0).AndGet(out ChessPiece rook)
                     .Move.From(4, 0).To(2, 0).Execute()
                     .Get(out ChessBoard board);
-                
+                Debug.Log(rook.Position);
                 Assert.IsTrue(board[3, 0] == rook);
             }
             
             [Test]
             public void RookAlsoMovesWithLegalCastleRight()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(4, 0)
                     .Place.White<Rook>().At(7, 0).AndGet(out ChessPiece rook)
                     .Move.From(4, 0).To(6, 0).Execute()
@@ -173,7 +173,7 @@ namespace Tests.EditMode
             [Test]
             public void WhiteCannotCastleThroughCheck()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.White<King>().At(4, 0)
                     .Place.White<Rook>().At(7, 0)
                     .Place.Black<Queen>().At(5, 7)
@@ -185,7 +185,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackCannotCastleThroughCheck()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7)
                     .Place.Black<Rook>().At(0, 7)
                     .Place.White<Queen>().At(3, 0)
@@ -197,7 +197,7 @@ namespace Tests.EditMode
             [Test]
             public void BlackCastleCanBeUndone()
             {
-                Setup.Board
+                BoardBuilder.BuildBoard
                     .Place.Black<King>().At(4, 7).AndGet(out var king)
                     .Place.Black<Rook>().At(0, 7).AndGet(out var rook)
                     .BlackGoesFirst

@@ -29,7 +29,7 @@ namespace Chess
             
             _chessPieceDictionary = new Dictionary<ChessPiece, ChessPieceBehaviour>();
 
-            _chessBoard.Setup().Standard().WithMinimaxAI(ChessPieceColor.Black, 1);
+            _chessBoard.Setup().StandardSetup().WithMinimaxAI(ChessPieceColor.Black, 3);
 
             SetupSquares();
         }
