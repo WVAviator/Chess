@@ -67,20 +67,20 @@ namespace Chess
 
         int Minimax(int moveScore, int depth, bool max, int alpha, int beta)
         {
-            LogWithDepth($"||| MoveScore: {moveScore}, AI Turn: {max}, Alpha: {alpha}, Beta: {beta} |||", depth);
+            //LogWithDepth($"||| MoveScore: {moveScore}, AI Turn: {max}, Alpha: {alpha}, Beta: {beta} |||", depth);
 
             string boardString = _board.ConvertToBoardString();
             
             if (_previouslyCheckedBoards.ContainsKey(boardString))
             {
-                LogWithDepth($"~~ Returning cached value: {_previouslyCheckedBoards[boardString]} ~~", depth);
+                //LogWithDepth($"~~ Returning cached value: {_previouslyCheckedBoards[boardString]} ~~", depth);
                 return _previouslyCheckedBoards[boardString];
             }
 
             if (depth == 0)
             {
                 _minimaxCount++;
-                LogWithDepth($"Reached leaf node. Returning {moveScore}.", depth);
+                //LogWithDepth($"Reached leaf node. Returning {moveScore}.", depth);
                 _previouslyCheckedBoards.Add(boardString, moveScore);
                 return moveScore;
             }
@@ -94,20 +94,20 @@ namespace Chess
                 
                 foreach (Move move in possibleMoves)
                 {
-                    LogWithDepth($"Checking {move}", depth);
+                    //LogWithDepth($"Checking {move}", depth);
                     
                     move.Execute(true);
                     int score = Minimax(moveScore + move.Score,depth - 1, false, alpha, beta);
                     move.Undo(true);
                     
-                    LogWithDepth($"{move} scored {score}", depth);
+                    //LogWithDepth($"{move} scored {score}", depth);
 
                     highestScore = Mathf.Max(highestScore, score);
                     alpha = Mathf.Max(highestScore, alpha);
 
                     if (beta <= alpha && _useAlphaBetaPruning)
                     {
-                        LogWithDepth($"This branch beta ({beta}) is less than or equal to alpha ({alpha}). Pruning branch.", depth);
+                        //LogWithDepth($"This branch beta ({beta}) is less than or equal to alpha ({alpha}). Pruning branch.", depth);
 
                         break;
                     }
@@ -124,20 +124,20 @@ namespace Chess
                 
                 foreach (Move move in possibleMoves)
                 {
-                    LogWithDepth($"Checking {move.ToString()}", depth);
+                    //LogWithDepth($"Checking {move.ToString()}", depth);
                     
                     move.Execute(true);
                     int score = Minimax(moveScore - move.Score,depth - 1, true, alpha, beta);
                     move.Undo(true);
                     
-                    LogWithDepth($"{move.ToString()} scored {score}", depth);
+                    //LogWithDepth($"{move.ToString()} scored {score}", depth);
                     
                     lowestScore = Mathf.Min(lowestScore, score);
                     beta = Mathf.Min(lowestScore, beta);
 
                     if (beta <= alpha && _useAlphaBetaPruning)
                     {
-                        LogWithDepth($"This branch beta ({beta}) is less than or equal to alpha ({alpha}). Pruning branch.", depth);
+                        //LogWithDepth($"This branch beta ({beta}) is less than or equal to alpha ({alpha}). Pruning branch.", depth);
                         break;
                     }
                 }

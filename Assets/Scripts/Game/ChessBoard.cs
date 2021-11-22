@@ -36,27 +36,26 @@ namespace Chess
         public event Action<ChessPiece> OnPieceAdded;
         public event Action<ChessPiece> OnPieceRemoved;
         public event Action<ChessPieceColor> OnNewPlayerTurn;
-        public event Action OnBoardUpdated;
 
         public ChessPiece this[int x, int y]
         {
             get => GetPieceAt(new Vector2Int(x, y));
             set
             {
-                value.Position = new Vector2Int(x, y);
+                value.MoveTo(new Vector2Int(x, y));
                 AddPiece(value);
             }
         }
 
-        public ChessBoard(params ChessPiece[] pieces)
+        public ChessBoard()
         {
             _blackPieces = new HashSet<ChessPiece>();
             _whitePieces = new HashSet<ChessPiece>();
             MoveHistory = new Stack<Move>();
 
             PlayerTurn = ChessPieceColor.White;
-            
-            foreach (ChessPiece p in pieces) AddPiece(p);
+
+            ChessPiece.OnAnyPieceMoved += ProcessMove;
         }
         
         public void StartGame() => OnNewPlayerTurn?.Invoke(PlayerTurn);
@@ -134,11 +133,10 @@ namespace Chess
             if (newPiece.Color == ChessPieceColor.Black) _blackPieces.Add(newPiece);
             else _whitePieces.Add(newPiece);
             
-            
-            
+            ChessPieceArray[newPiece.Position.x + 8 * newPiece.Position.y] = newPiece;
+
             OnPieceAdded?.Invoke(newPiece);
-            OnBoardUpdated?.Invoke();
-            
+
             if (newPiece is King) 
             {
                 if (newPiece.Color == ChessPieceColor.White) _whiteKing = (King)newPiece;
@@ -154,19 +152,26 @@ namespace Chess
         public void RemovePiece(ChessPiece pieceToRemove)
         {
             pieceToRemove.Board = null;
+            
+            ChessPieceArray[pieceToRemove.Position.x + 8 * pieceToRemove.Position.y] = null;
+            
             if (pieceToRemove.Color == ChessPieceColor.Black) _blackPieces.Remove(pieceToRemove);
             else _whitePieces.Remove(pieceToRemove);
             OnPieceRemoved?.Invoke(pieceToRemove);
-            OnBoardUpdated?.Invoke();
+        }
+
+        void ProcessMove(ChessPiece piece, Vector2Int oldPosition, Vector2Int newPosition)
+        {
+            int oldIndex = oldPosition.x + 8 * oldPosition.y;
+            int newIndex = newPosition.x + 8 * newPosition.y;
+            
+            ChessPieceArray[oldIndex] = null;
+            ChessPieceArray[newIndex] = piece;
         }
 
         public ChessPiece GetPieceAt(Vector2Int position)
         {
-            foreach (ChessPiece piece in ChessPieces)
-            {
-                if (piece.Position == position) return piece;
-            }
-            return null;
+            return ChessPieceArray[position.x + 8 * position.y];
         }
 
         public int EvaluateScore(ChessPieceColor color)
@@ -183,6 +188,7 @@ namespace Chess
         public string ConvertToBoardString()
         {
             string boardString = "";
+
             for (int y = 7; y >= 0; y--)
             {
                 for (int x = 0; x < 8; x++)

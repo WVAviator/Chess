@@ -18,10 +18,11 @@ namespace Chess
 
         public abstract string PieceName { get; }
         public event Action<ChessPiece, Vector2Int> OnPieceMoved;
+        public static event Action<ChessPiece, Vector2Int, Vector2Int> OnAnyPieceMoved;
         public Vector2Int Position
         {
             get => _position;
-            set
+            private set
             {
                 _position = value;
                 if (!IsValidPosition(_position)) _position = Vector2Int.zero;
@@ -44,8 +45,10 @@ namespace Chess
                 Debug.LogError($"Attempted to move chess piece to an invalid location at {newPosition.ToString()}");
                 return;
             }
+            OnAnyPieceMoved?.Invoke(this, Position, newPosition);
             Position = newPosition;
             OnPieceMoved?.Invoke(this, newPosition);
+            
         }
         static bool IsValidPosition(Vector2Int potentialPosition)
         {
